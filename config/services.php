@@ -35,4 +35,19 @@ return [
         ],
     ],
 
+    'whatsapp' => [
+        'token' => env('WHATSAPP_TOKEN'),
+        'phone_id' => env('WHATSAPP_PHONE_ID'),
+        'business_id' => env('WHATSAPP_BUSINESS_ID'),
+    ],
+
+    'wppconnect' => [
+        'enabled' => env('WPPCONNECT_ENABLED', false),
+        'url' => env('WPPCONNECT_URL', 'http://localhost:21465'),
+    ],
+
+    'callmebot' => [
+        'key' => env('CALLMEBOT_KEY'),
+    ],
+
 ];
