@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Customer;
 use App\Models\Item;
+use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -181,6 +182,12 @@ class OrderController extends Controller
         ]);
 
         $order->update(['status' => $request->status]);
+
+        // Send WhatsApp notification when order is ready or completed
+        if (in_array($request->status, ['ready', 'completed'])) {
+            $whatsappService = new WhatsAppService();
+            $whatsappService->sendOrderStatusNotification($order, $request->status);
+        }
 
         return redirect()->route('orders.index')->with('toast', ['type' => 'success', 'message' => 'Order status updated!']);
     }
