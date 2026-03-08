@@ -47,6 +47,7 @@ class CreateNewUser implements CreatesNewUsers
             'role' => 'admin',
             'is_approved' => true,
             'laundry_id' => $laundry->id,
+            'is_verified' => false,
         ]);
 
         return $user;

@@ -41,12 +41,23 @@
 
                 <div>
                     <flux:input 
+                        name="phone" 
+                        label="Phone Number" 
+                        type="tel" 
+                        autocomplete="tel"
+                        placeholder="Enter phone number"
+                    />
+                </div>
+
+                <div>
+                    <flux:input 
                         name="password" 
                         label="Password" 
                         type="password" 
                         required 
                         autocomplete="new-password"
                         placeholder="Enter password"
+                        viewable
                     />
                 </div>
 
@@ -58,6 +69,7 @@
                         required 
                         autocomplete="new-password"
                         placeholder="Confirm password"
+                        viewable
                     />
                 </div>
 

@@ -76,7 +76,7 @@ class WhatsAppService
     /**
      * Send message via CallMeBot API (free tier available).
      */
-    private function sendMessage(string $phone, string $message): bool
+    public function sendMessage(string $phone, string $message): bool
     {
         try {
             // Try CallMeBot API (free tier: 1 message/day)

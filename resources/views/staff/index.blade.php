@@ -21,9 +21,9 @@
                     <div class="flex justify-center mb-4">
                         <svg class="w-12 h-12 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                    <p class                    </div>
--400 mb-="text-zinc                        </svg>
-4">No staff members found</p>
+                        </svg>
+                    </div>
+                    <p class="text-zinc-400 mb-4">No staff members found</p>
                     <a href="{{ route('staff.create') }}" class="text-blue-400 hover:text-blue-300">Add your first staff member</a>
                 </div>
             @else

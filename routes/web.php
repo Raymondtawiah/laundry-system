@@ -6,9 +6,18 @@ use App\Http\Controllers\StaffController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\VerificationController;
 
 Route::view('/', 'welcome')->name('home');
 
+// Verification routes (requires auth but not verified)
+Route::middleware(['auth'])->group(function () {
+    Route::get('verify', [VerificationController::class, 'show'])->name('verification.show');
+    Route::post('verify', [VerificationController::class, 'verify'])->name('verification.verify');
+    Route::post('verify/resend', [VerificationController::class, 'resend'])->name('verification.resend');
+});
+
+// Protected routes - requires both auth and our custom verification
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     

@@ -146,7 +146,7 @@ return [
     'features' => [
         Features::registration(),
         Features::resetPasswords(),
-        Features::emailVerification(),
+        // Features::emailVerification(), // Disabled - using custom 6-digit verification
         Features::twoFactorAuthentication([
             'confirm' => true,
             'confirmPassword' => true,

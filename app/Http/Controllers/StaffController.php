@@ -48,6 +48,7 @@ class StaffController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'phone' => ['nullable', 'string', 'max:20'],
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
@@ -58,10 +59,12 @@ class StaffController extends Controller
         $staff = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'phone' => $request->phone,
             'password' => $request->password,
             'role' => 'staff',
             'is_approved' => true,
             'laundry_id' => $admin->laundry_id,
+            'is_verified' => false,
         ]);
 
         return redirect()->route('dashboard')->with('success', 'Staff member registered successfully!');

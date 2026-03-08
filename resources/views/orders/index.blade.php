@@ -8,16 +8,16 @@
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Orders</h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400">Manage customer orders</p>
             </div>
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
                 <!-- Search Form -->
                 <form method="GET" action="{{ route('orders.index') }}" class="flex flex-col gap-2 sm:flex-row sm:items-center">
-                    <div class="relative">
+                    <div class="relative w-full sm:w-64">
                         <input 
                             type="text" 
                             name="search" 
                             value="{{ $search ?? '' }}"
                             placeholder="Search..." 
-                            class="w-full sm:w-48 lg:w-64 rounded-lg border border-gray-300 bg-white px-4 py-2 pl-9 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 pl-9 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                         >
                         <div class="absolute left-2.5 top-1/2 -translate-y-1/2">
                             <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -25,16 +25,16 @@
                             </svg>
                         </div>
                     </div>
-                    <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                    <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 whitespace-nowrap">
                         Search
                     </button>
                     @if($search)
-                        <a href="{{ route('orders.index') }}" class="text-center text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400">
+                        <a href="{{ route('orders.index') }}" class="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 whitespace-nowrap">
                             Clear
                         </a>
                     @endif
                 </form>
-                <a href="{{ route('orders.create') }}" class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+                <a href="{{ route('orders.create') }}" class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 whitespace-nowrap">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
@@ -84,7 +84,7 @@
                                         Customer
                                     </div>
                                 </th>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300 hidden md:table-cell">
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300">
                                     <div class="flex items-center gap-2">
                                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
@@ -92,7 +92,7 @@
                                         Service
                                     </div>
                                 </th>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300 hidden md:table-cell">
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300">
                                     <div class="flex items-center gap-2">
                                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -100,7 +100,7 @@
                                         Delivery
                                     </div>
                                 </th>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300 hidden lg:table-cell">
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300">
                                     <div class="flex items-center gap-2">
                                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -108,7 +108,7 @@
                                         Total
                                     </div>
                                 </th>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300 hidden lg:table-cell">
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300">
                                     <div class="flex items-center gap-2">
                                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -116,7 +116,7 @@
                                         Paid
                                     </div>
                                 </th>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300 hidden lg:table-cell">
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300">
                                     <div class="flex items-center gap-2">
                                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -124,7 +124,7 @@
                                         Balance
                                     </div>
                                 </th>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300 hidden md:table-cell">
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-300">
                                     <div class="flex items-center gap-2">
                                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
@@ -161,7 +161,7 @@
                                         <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $order->customer->name }}</div>
                                         <div class="text-xs text-gray-500 dark:text-gray-400">{{ $order->customer->phone }}</div>
                                     </td>
-                                    <td class="whitespace-nowrap px-6 py-6 hidden md:table-cell">
+                                    <td class="whitespace-nowrap px-6 py-6">
                                         @switch($order->service_type)
                                             @case('washing')
                                                 <span class="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-800 dark:bg-blue-900 dark:text-blue-200">
@@ -197,7 +197,7 @@
                                                 @break
                                         @endswitch
                                     </td>
-                                    <td class="whitespace-nowrap px-6 py-6 hidden md:table-cell">
+                                    <td class="whitespace-nowrap px-6 py-6">
                                         @if($order->delivery_type === 'pickup')
                                             <span class="inline-flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-800 dark:bg-gray-700 dark:text-gray-200">
                                                 <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -214,20 +214,20 @@
                                             </span>
                                         @endif
                                     </td>
-                                    <td class="whitespace-nowrap px-6 py-6 hidden lg:table-cell">
+                                    <td class="whitespace-nowrap px-6 py-6">
                                         <div class="text-sm font-bold text-gray-900 dark:text-white">GH₵{{ number_format($order->total_amount, 2) }}</div>
                                     </td>
-                                    <td class="whitespace-nowrap px-6 py-6 hidden lg:table-cell">
+                                    <td class="whitespace-nowrap px-6 py-6">
                                         <div class="text-sm font-semibold text-green-600 dark:text-green-400">GH₵{{ number_format($order->amount_paid, 2) }}</div>
                                     </td>
-                                    <td class="whitespace-nowrap px-6 py-6 hidden lg:table-cell">
+                                    <td class="whitespace-nowrap px-6 py-6">
                                         @if($order->balance > 0)
                                             <div class="text-sm font-bold text-red-600 dark:text-red-400">GH₵{{ number_format($order->balance, 2) }}</div>
                                         @else
                                             <div class="text-sm font-medium text-gray-500 dark:text-gray-400">GH₵0.00</div>
                                         @endif
                                     </td>
-                                    <td class="whitespace-nowrap px-6 py-6 hidden md:table-cell">
+                                    <td class="whitespace-nowrap px-6 py-6">
                                         @switch($order->payment_status)
                                             @case('unpaid')
                                                 <span class="inline-flex items-center gap-1 rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-800 dark:bg-red-900 dark:text-red-200">
@@ -311,8 +311,6 @@
                                             $message = "Hi " . $order->customer->name . "! Your laundry order #" . str_pad($order->id, 3, '0', STR_PAD_LEFT) . " is ready for pickup. Total: GH₵" . number_format($order->total_amount, 2) . ". Thank you!";
                                             $whatsappUrl = "https://wa.me/" . $phone . "?text=" . urlencode($message);
                                         @endphp
-                                        
-                                        <!-- Mobile: Dropdown Menu -->
                                         <div class="relative lg:hidden">
                                             <button onclick="toggleOrderMenu({{ $order->id }})" class="inline-flex items-center justify-center p-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
                                                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -443,3 +441,4 @@ document.addEventListener('click', function(e) {
     }
 });
 </script>
+
