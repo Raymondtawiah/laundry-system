@@ -13,21 +13,84 @@ class CreateOrder extends Component
     public $orderItems = [];
     public $totalAmount = 0;
     public $notes = '';
+    public $service_types = [];
 
     public function mount()
     {
         $this->customers = Customer::where('laundry_id', auth()->user()->laundry_id)
+            ->when(auth()->user()->role === 'staff' && auth()->user()->branch, function($query) {
+                $query->where('branch', auth()->user()->branch);
+            })
             ->orderBy('name')
             ->get()
             ->toArray();
             
-        $this->items = Item::where('laundry_id', auth()->user()->laundry_id)
-            ->where('is_active', true)
-            ->orderBy('name')
-            ->get()
-            ->toArray();
-            
+        $this->items = $this->getItemsByServiceTypes();
+        
         // Add one empty item row by default
+        $this->addItem();
+    }
+
+    public function getItemsByServiceTypes()
+    {
+        $query = Item::where('laundry_id', auth()->user()->laundry_id)
+            ->where('is_active', true);
+            
+        // Filter items by selected service types/categories
+        if (!empty($this->service_types)) {
+            $categoryMap = [
+                'washing' => 'Executive Wear',
+                'ironing' => 'Native Wear',
+                'drying' => 'Ladies Wear',
+                'bag wash' => 'Bag Wash',
+                'bedding_decor' => 'Bedding and Decor',
+                'sneakers' => 'Sneakers',
+                'bag' => 'Bag',
+                'deep_cleaning' => 'Ironing',
+            ];
+            
+            $categories = [];
+            foreach ($this->service_types as $serviceType) {
+                if (isset($categoryMap[$serviceType])) {
+                    $categories[] = $categoryMap[$serviceType];
+                }
+            }
+            
+            if (!empty($categories)) {
+                $query->whereIn('category', $categories);
+            }
+        }
+        
+        return $query->orderBy('name')->get()->toArray();
+    }
+
+    public function updatedServiceTypes()
+    {
+        // Reset items when service types change
+        $this->items = $this->getItemsByServiceTypes();
+        
+        // Reset order items
+        $this->orderItems = [];
+        $this->addItem();
+    }
+
+    public function addServiceType($value)
+    {
+        if ($value && !in_array($value, $this->service_types)) {
+            $this->service_types[] = $value;
+            $this->items = $this->getItemsByServiceTypes();
+            $this->orderItems = [];
+            $this->addItem();
+        }
+    }
+
+    public function removeServiceType($value)
+    {
+        $this->service_types = array_filter($this->service_types, function($item) use ($value) {
+            return $item !== $value;
+        });
+        $this->items = $this->getItemsByServiceTypes();
+        $this->orderItems = [];
         $this->addItem();
     }
 

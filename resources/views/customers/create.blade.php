@@ -47,6 +47,22 @@
                     />
                 </div>
 
+                @if(auth()->user()->role === 'admin')
+                <div>
+                    <label for="branch" class="block text-sm font-medium text-zinc-300 mb-2">Branch</label>
+                    <select 
+                        name="branch" 
+                        id="branch" 
+                        class="w-full rounded-lg border-zinc-600 bg-zinc-700 text-white focus:border-blue-500 focus:ring-blue-500 py-3 px-4 text-base"
+                    >
+                        <option value="">Select Branch</option>
+                        <option value="Daasebre">Daasebre</option>
+                        <option value="Nyamekrom">Nyamekrom</option>
+                        <option value="KTU">KTU</option>
+                    </select>
+                </div>
+                @endif
+
                 <div>
                     <flux:textarea 
                         name="address" 

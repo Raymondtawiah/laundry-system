@@ -16,6 +16,7 @@ class Customer extends Model
      */
     protected $fillable = [
         'laundry_id',
+        'branch',
         'name',
         'email',
         'phone',
@@ -29,5 +30,13 @@ class Customer extends Model
     public function laundry()
     {
         return $this->belongsTo(Laundry::class);
+    }
+
+    /**
+     * Get the customer's orders.
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
     }
 }

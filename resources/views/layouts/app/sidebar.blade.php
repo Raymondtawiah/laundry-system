@@ -18,18 +18,25 @@
                     <flux:sidebar.item icon="user" :href="route('profile.edit')" :current="request()->routeIs('profile.edit')" wire:navigate>
                         {{ __('Profile') }}
                     </flux:sidebar.item>
-                    <flux:sidebar.item icon="currency-dollar" :href="route('items.index')" :current="request()->routeIs('items.*')" wire:navigate>
-                        {{ __('Items') }}
+                    @if(auth()->user()->role === 'admin')
+                    <flux:sidebar.item icon="chart-bar" :href="route('reports.index')" :current="request()->routeIs('reports.*')" wire:navigate>
+                        {{ __('Reports') }}
                     </flux:sidebar.item>
+                    @endif
                     <flux:sidebar.item icon="users" :href="route('customers.index')" :current="request()->routeIs('customers.*')" wire:navigate>
                         {{ __('Customers') }}
-                    </flux:sidebar.item>
-                    <flux:sidebar.item icon="user-group" :href="route('staff.index')" :current="request()->routeIs('staff.*')" wire:navigate>
-                        {{ __('Staff') }}
                     </flux:sidebar.item>
                     <flux:sidebar.item icon="shopping-cart" :href="route('orders.index')" :current="request()->routeIs('orders.*')" wire:navigate>
                         {{ __('Orders') }}
                     </flux:sidebar.item>
+                    @if(auth()->user()->role === 'admin' || (auth()->user()->laundry_id !== null && auth()->user()->role !== 'staff'))
+                    <flux:sidebar.item icon="currency-dollar" :href="route('items.index')" :current="request()->routeIs('items.*')" wire:navigate>
+                        {{ __('Items') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="users" :href="route('staff.index')" :current="request()->routeIs('staff.*')" wire:navigate>
+                        {{ __('Staff') }}
+                    </flux:sidebar.item>
+                    @endif
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 
@@ -75,26 +82,6 @@
                         </flux:menu.item>
                     </flux:menu.radio.group>
 
-                    @if(auth()->user()->role == 'admin' || auth()->user()->laundry_id !== null)
-                    <flux:menu.radio.group>
-                        <flux:menu.item :href="route('staff.index')" icon="users" wire:navigate>
-                            {{ __('Staff') }}
-                        </flux:menu.item>
-                        <flux:menu.item :href="route('staff.create')" icon="user-plus" wire:navigate>
-                            {{ __('Add Staff') }}
-                        </flux:menu.item>
-                        <flux:menu.item :href="route('items.index')" icon="currency-dollar" wire:navigate>
-                            {{ __('Items') }}
-                        </flux:menu.item>
-                        <flux:menu.item :href="route('customers.index')" icon="user-group" wire:navigate>
-                            {{ __('Customers') }}
-                        </flux:menu.item>
-                        <flux:menu.item :href="route('orders.index')" icon="shopping-cart" wire:navigate>
-                            {{ __('Orders') }}
-                        </flux:menu.item>
-                    </flux:menu.radio.group>
-                    @endif
-
                     <flux:menu.separator />
 
                     <form method="POST" action="{{ route('logout') }}" class="w-full">
@@ -120,3 +107,4 @@
         @fluxScripts
     </body>
 </html>
+

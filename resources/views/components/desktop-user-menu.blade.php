@@ -22,23 +22,6 @@
             <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
                 {{ __('Settings') }}
             </flux:menu.item>
-            @if(auth()->user()->role == 'admin' || auth()->user()->laundry_id !== null)
-            <flux:menu.item :href="route('staff.index')" icon="users" wire:navigate>
-                {{ __('Staff') }}
-            </flux:menu.item>
-            <flux:menu.item :href="route('staff.create')" icon="user-plus" wire:navigate>
-                {{ __('Add Staff') }}
-            </flux:menu.item>
-            <flux:menu.item :href="route('items.index')" icon="currency-dollar" wire:navigate>
-                {{ __('Items') }}
-            </flux:menu.item>
-            <flux:menu.item :href="route('customers.index')" icon="user-group" wire:navigate>
-                {{ __('Customers') }}
-            </flux:menu.item>
-            <flux:menu.item :href="route('orders.index')" icon="shopping-cart" wire:navigate>
-                {{ __('Orders') }}
-            </flux:menu.item>
-            @endif
             <form method="POST" action="{{ route('logout') }}" class="w-full">
                 @csrf
                 <flux:menu.item

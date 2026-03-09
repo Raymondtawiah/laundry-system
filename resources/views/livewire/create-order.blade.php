@@ -14,7 +14,7 @@
         </div>
 
         <!-- Delivery and Service Type -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
                 <label class="block text-sm font-medium text-zinc-300 mb-2">Delivery Type</label>
                 <select name="delivery_type" class="w-full rounded-lg border-zinc-600 bg-zinc-700 text-white focus:border-blue-500 focus:ring-blue-500 py-3 px-4 text-base" required>
@@ -23,13 +23,61 @@
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-medium text-zinc-300 mb-2">Service Type</label>
-                <select name="service_type" class="w-full rounded-lg border-zinc-600 bg-zinc-700 text-white focus:border-blue-500 focus:ring-blue-500 py-3 px-4 text-base" required>
-                    <option value="washing" class="bg-zinc-700">Washing</option>
-                    <option value="ironing" class="bg-zinc-700">Ironing</option>
-                    <option value="drying" class="bg-zinc-700">Drying</option>
-                    <option value="deep_cleaning" class="bg-zinc-700">Deep Cleaning</option>
+                <label class="block text-sm font-medium text-zinc-300 mb-2">Pickup Type</label>
+                <select name="pickup_type" class="w-full rounded-lg border-zinc-600 bg-zinc-700 text-white focus:border-blue-500 focus:ring-blue-500 py-3 px-4 text-base" required>
+                    <option value="door_pick" class="bg-zinc-700">Door Pick</option>
+                    <option value="self_pick" class="bg-zinc-700">Self Pick</option>
                 </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-zinc-300 mb-2">Service Type</label>
+                
+                <!-- Selected Tags -->
+                <div class="flex flex-wrap gap-2 mb-2">
+                    @foreach([
+                        'washing' => 'Executive Wear',
+                        'ironing' => 'Native Wear',
+                        'drying' => 'Ladies Wear',
+                        'bag wash' => 'Bag Wash',
+                        'bedding_decor' => 'Bedding and Decor',
+                        'sneakers' => 'Sneakers',
+                        'bag' => 'Bag',
+                        'deep_cleaning' => 'Ironing',
+                    ] as $value => $label)
+                        @if(in_array($value, $service_types))
+                            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-blue-600 text-white text-sm">
+                                {{ $label }}
+                                <button type="button" wire:click="removeServiceType('{{ $value }}')" class="hover:text-red-300">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </span>
+                        @endif
+                    @endforeach
+                </div>
+                
+                <!-- Dropdown -->
+                <div class="relative">
+                    <select 
+                        wire:change="addServiceType($event.target.value)" 
+                        class="w-full rounded-lg border-zinc-600 bg-zinc-700 text-white focus:border-blue-500 focus:ring-blue-500 py-3 px-4 text-base"
+                    >
+                        <option value="">Select Service Type</option>
+                        @foreach([
+                            'washing' => 'Executive Wear',
+                            'ironing' => 'Native Wear',
+                            'drying' => 'Ladies Wear',
+                            'bag wash' => 'Bag Wash',
+                            'bedding_decor' => 'Bedding and Decor',
+                            'sneakers' => 'Sneakers',
+                            'bag' => 'Bag',
+                            'deep_cleaning' => 'Ironing',
+                        ] as $value => $label)
+                            <option value="{{ $value }}" {{ in_array($value, $service_types) ? 'disabled' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
         </div>
 
@@ -105,7 +153,13 @@
             <span class="text-2xl font-bold text-blue-400">GH₵{{ number_format($totalAmount, 2) }}</span>
         </div>
 
-        <!-- Hidden inputs for items -->
+        <!-- Hidden inputs for service type and items -->
+        @if(count($service_types) > 0)
+            @foreach($service_types as $serviceType)
+                <input type="hidden" name="service_types[]" value="{{ $serviceType }}">
+            @endforeach
+        @endif
+        
         @foreach($orderItems as $index => $orderItem)
             <input type="hidden" name="items[{{ $index }}][item_id]" value="{{ $orderItem['item_id'] }}">
             <input type="hidden" name="items[{{ $index }}][quantity]" value="{{ $orderItem['quantity'] }}">

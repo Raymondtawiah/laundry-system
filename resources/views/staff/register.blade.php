@@ -50,6 +50,21 @@
                 </div>
 
                 <div>
+                    <label for="branch" class="block text-sm font-medium text-zinc-300 mb-2">Branch</label>
+                    <select 
+                        name="branch" 
+                        id="branch" 
+                        required 
+                        class="w-full rounded-lg border border-zinc-600 bg-zinc-700 px-4 py-2.5 text-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    >
+                        <option value="">Select a branch</option>
+                        <option value="Daasebre">Daasebre</option>
+                        <option value="Nyamekrom">Nyamekrom</option>
+                        <option value="KTU">KTU</option>
+                    </select>
+                </div>
+
+                <div>
                     <flux:input 
                         name="password" 
                         label="Password" 

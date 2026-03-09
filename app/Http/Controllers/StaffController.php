@@ -50,6 +50,7 @@ class StaffController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'phone' => ['nullable', 'string', 'max:20'],
             'password' => ['required', 'confirmed', Password::defaults()],
+            'branch' => ['required', 'in:Daasebre,Nyamekrom,KTU'],
         ]);
 
         // Get the authenticated admin
@@ -64,7 +65,8 @@ class StaffController extends Controller
             'role' => 'staff',
             'is_approved' => true,
             'laundry_id' => $admin->laundry_id,
-            'is_verified' => false,
+            'branch' => $request->branch,
+            'is_verified' => true,
         ]);
 
         return redirect()->route('dashboard')->with('success', 'Staff member registered successfully!');
@@ -88,5 +90,27 @@ class StaffController extends Controller
         $staff->delete();
         
         return redirect()->route('staff.index')->with('success', 'Staff member deleted successfully!');
+    }
+
+    /**
+     * Toggle staff verification status.
+     */
+    public function toggleVerification(User $staff)
+    {
+        // Only admin can toggle verification
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Only administrators can verify staff members.');
+        }
+        
+        // Make sure the staff belongs to the same laundry
+        if ($staff->laundry_id !== Auth::user()->laundry_id) {
+            abort(403, 'You cannot modify this staff member.');
+        }
+        
+        $staff->is_verified = !$staff->is_verified;
+        $staff->save();
+        
+        $status = $staff->is_verified ? 'verified' : 'unverified';
+        return redirect()->route('staff.index')->with('success', "Staff member {$status} successfully!");
     }
 }

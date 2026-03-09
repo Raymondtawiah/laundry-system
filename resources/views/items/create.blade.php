@@ -1,4 +1,4 @@
-  e<x-layouts::app :title="__('Add Item')">
+<x-layouts::app :title="__('Add Item')">
     <x-flash-message />
     <div class="flex h-full w-full flex-1 flex-col gap-4">
         <div class="rounded-xl border border-zinc-700 bg-zinc-800 p-6 shadow-sm">
@@ -29,12 +29,17 @@
                 </div>
 
                 <div>
-                    <flux:input 
-                        name="category" 
-                        label="Category" 
-                        type="text" 
-                        placeholder="e.g., Clothing, Bedding, Accessories"
-                    />
+                    <label class="block text-sm font-medium text-zinc-300 mb-2">Category</label>
+                    <select name="category" class="w-full rounded-lg border-zinc-600 bg-zinc-700 text-white focus:border-blue-500 focus:ring-blue-500 py-3 px-4 text-base" required>
+                        <option value="" class="bg-zinc-700">Select Category</option>
+                        <option value="Executive Wear" class="bg-zinc-700">Executive Wear</option>
+                        <option value="Native Wear" class="bg-zinc-700">Native Wear</option>
+                        <option value="Ladies Wear" class="bg-zinc-700">Ladies Wear</option>
+                        <option value="Bag Wash" class="bg-zinc-700">Bag Wash</option>
+                        <option value="Bedding and Decor" class="bg-zinc-700">Bedding and Decor</option>
+                        <option value="Sneakers" class="bg-zinc-700">Sneakers</option>
+                        <option value="Bag" class="bg-zinc-700">Bag</option>
+                    </select>
                 </div>
 
                 <div>

@@ -35,7 +35,7 @@ class ItemController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
             'price' => ['required', 'numeric', 'min:0', 'max:999999.99'],
-            'category' => ['nullable', 'string', 'max:100'],
+            'category' => ['required', 'string', 'max:100'],
         ]);
 
         // Get the authenticated admin
@@ -89,5 +89,58 @@ class ItemController extends Controller
         $item->delete();
         
         return redirect()->route('items.index')->with('success', 'Item deleted successfully!');
+    }
+
+    /**
+     * Show the edit item form.
+     */
+    public function edit(Item $item)
+    {
+        // Only admin can edit items
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Only administrators can edit items.');
+        }
+        
+        // Make sure the item belongs to the same laundry
+        if ($item->laundry_id !== Auth::user()->laundry_id) {
+            abort(403, 'You cannot edit this item.');
+        }
+        
+        return view('items.edit', compact('item'));
+    }
+
+    /**
+     * Update an item.
+     */
+    public function update(Request $request, Item $item)
+    {
+        // Only admin can update items
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Only administrators can update items.');
+        }
+        
+        // Make sure the item belongs to the same laundry
+        if ($item->laundry_id !== Auth::user()->laundry_id) {
+            abort(403, 'You cannot update this item.');
+        }
+        
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:1000'],
+            'price' => ['required', 'numeric', 'min:0', 'max:999999.99'],
+            'category' => ['required', 'string', 'max:100'],
+            'is_active' => ['boolean'],
+        ]);
+
+        // Update item
+        $item->update([
+            'name' => $request->name,
+            'description' => $request->description,
+            'price' => $request->price,
+            'category' => $request->category,
+            'is_active' => $request->is_active ?? true,
+        ]);
+
+        return redirect()->route('items.index')->with('toast', ['type' => 'success', 'message' => 'Item updated successfully!']);
     }
 }

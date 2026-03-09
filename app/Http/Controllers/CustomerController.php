@@ -9,6 +9,29 @@ use Illuminate\Support\Facades\Auth;
 class CustomerController extends Controller
 {
     /**
+     * Show customer details.
+     */
+    public function show(Customer $customer)
+    {
+        // Only admin can view customer details
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Only administrators can view customer details.');
+        }
+        
+        // Make sure the customer belongs to the same laundry
+        if ($customer->laundry_id !== Auth::user()->laundry_id) {
+            abort(403, 'You cannot view this customer.');
+        }
+        
+        // Load customer's orders
+        $customer->load(['orders' => function($query) {
+            $query->orderBy('created_at', 'desc');
+        }]);
+        
+        return view('customers.show', compact('customer'));
+    }
+
+    /**
      * Show the add customer form.
      */
     public function create()
@@ -42,9 +65,10 @@ class CustomerController extends Controller
         // Get the authenticated user's laundry
         $laundryId = Auth::user()->laundry_id;
 
-        // Create customer linked to laundry
+        // Create customer linked to laundry (with branch)
         $customer = Customer::create([
             'laundry_id' => $laundryId,
+            'branch' => Auth::user()->role === 'staff' ? Auth::user()->branch : $request->branch,
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
@@ -58,18 +82,29 @@ class CustomerController extends Controller
     /**
      * Show the customers list.
      */
-    public function index()
+    public function index(Request $request)
     {
         // Only admin and staff can view customers
         if (Auth::user()->role !== 'admin' && Auth::user()->role !== 'staff') {
             abort(403, 'Only administrators and staff can view customers.');
         }
         
+        $branch = $request->get('branch', '');
+        
         $customers = Customer::where('laundry_id', Auth::user()->laundry_id)
+                    ->when(Auth::user()->role === 'staff' && Auth::user()->branch, function($query) {
+                        $query->where('branch', Auth::user()->branch);
+                    })
+                    ->when(Auth::user()->role === 'staff' && !Auth::user()->branch, function($query) {
+                        $query->whereNull('id');
+                    })
+                    ->when($branch && Auth::user()->role === 'admin', function($query) use ($branch) {
+                        $query->where('branch', $branch);
+                    })
                     ->orderBy('name')
                     ->get();
         
-        return view('customers.index', compact('customers'));
+        return view('customers.index', compact('customers', 'branch'));
     }
 
     /**

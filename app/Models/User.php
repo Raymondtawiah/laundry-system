@@ -28,6 +28,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'role',
         'is_approved',
         'laundry_id',
+        'branch',
         'verification_code',
         'verification_code_expires_at',
         'is_verified',

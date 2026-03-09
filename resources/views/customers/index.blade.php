@@ -1,10 +1,28 @@
 <x-layouts::app :title="__('Customers')">
+    @php $branch = $branch ?? ''; @endphp
     <div class="flex h-full w-full flex-1 flex-col gap-6">
         <!-- Header -->
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Customers</h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400">Manage your customer database</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <!-- Branch Filter (Admin Only) -->
+                @if(auth()->user()->role === 'admin')
+                <form method="GET" action="{{ route('customers.index') }}" class="flex items-center">
+                    <select 
+                        name="branch" 
+                        onchange="this.form.submit()"
+                        class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    >
+                        <option value="">All Branches</option>
+                        <option value="Daasebre" {{ $branch === 'Daasebre' ? 'selected' : '' }}>Daasebre</option>
+                        <option value="Nyamekrom" {{ $branch === 'Nyamekrom' ? 'selected' : '' }}>Nyamekrom</option>
+                        <option value="KTU" {{ $branch === 'KTU' ? 'selected' : '' }}>KTU</option>
+                    </select>
+                </form>
+                @endif
             </div>
             <a href="{{ route('customers.create') }}" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -33,6 +51,7 @@
                         <thead>
                             <tr class="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-700">
                                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Branch</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Email</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Phone</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">Address</th>
@@ -49,6 +68,11 @@
                                         @endif
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4">
+                                        <span class="inline-flex rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                                            {{ $customer->branch ?? 'N/A' }}
+                                        </span>
+                                    </td>
+                                    <td class="whitespace-nowrap px-6 py-4">
                                         <div class="text-sm text-gray-500 dark:text-gray-400">{{ $customer->email ?? '-' }}</div>
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4">
@@ -59,6 +83,12 @@
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4 text-right">
                                         @if(auth()->user()->role === 'admin')
+                                            <a href="{{ route('customers.show', $customer) }}" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 inline-flex mr-3" title="View Details">
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                                </svg>
+                                            </a>
                                             <form action="{{ route('customers.destroy', $customer) }}" method="POST" class="inline-flex">
                                                 @csrf
                                                 @method('DELETE')

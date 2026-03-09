@@ -33,6 +33,7 @@
                             <tr class="border-b border-zinc-700">
                                 <th class="pb-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-400">Name</th>
                                 <th class="pb-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-400">Email</th>
+                                <th class="pb-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-400">Branch</th>
                                 <th class="pb-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-400">Role</th>
                                 <th class="pb-3 text-left text-xs font-medium uppercase tracking-wider text-zinc-400">Status</th>
                                 <th class="pb-3 text-right text-xs font-medium uppercase tracking-wider text-zinc-400">Actions</th>
@@ -51,6 +52,11 @@
                                     </td>
                                     <td class="py-4 text-zinc-400">{{ $member->email }}</td>
                                     <td class="py-4">
+                                        <span class="inline-flex rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                                            {{ $member->branch ?? 'N/A' }}
+                                        </span>
+                                    </td>
+                                    <td class="py-4">
                                         <span class="inline-flex rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                                             Staff
                                         </span>
@@ -65,8 +71,30 @@
                                                 Pending
                                             </span>
                                         @endif
+                                        @if(!$member->is_verified)
+                                            <span class="inline-flex rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-200 ml-1">
+                                                Unverified
+                                            </span>
+                                        @endif
                                     </td>
                                     <td class="py-4 text-right">
+                                        <!-- Verify/Unverify Button -->
+                                        <form action="{{ route('staff.toggleVerification', $member->id) }}" method="POST" class="inline mr-2">
+                                            @csrf
+                                            @if($member->is_verified)
+                                                <button type="submit" class="text-yellow-400 hover:text-yellow-300 transition-colors" title="Unverify staff">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                    </svg>
+                                                </button>
+                                            @else
+                                                <button type="submit" class="text-green-400 hover:text-green-300 transition-colors" title="Verify staff">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                    </svg>
+                                                </button>
+                                            @endif
+                                        </form>
                                         <form action="{{ route('staff.destroy', $member->id) }}" method="POST" class="inline">
                                             @csrf
                                             @method('DELETE')
