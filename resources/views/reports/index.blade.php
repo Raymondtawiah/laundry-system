@@ -106,7 +106,11 @@
     </div>
 
     <!-- Branch Performance Charts -->
-    <div class="grid grid-cols-1 gap-4 mb-6 print:hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6 print:hidden">
+        <div class="bg-zinc-800 dark:bg-zinc-900 rounded-xl border border-zinc-700 p-4">
+            <h2 class="text-lg font-semibold text-white mb-3">Orders by Branch</h2>
+            <canvas id="branchOrdersChart"></canvas>
+        </div>
         <div class="bg-zinc-800 dark:bg-zinc-900 rounded-xl border border-zinc-700 p-4">
             <h2 class="text-lg font-semibold text-white mb-3">Branch Performance Comparison - Revenue</h2>
             <canvas id="revenueChart" width="800" height="300"></canvas>
@@ -260,7 +264,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     }
     
-    // Revenue by Branch - Doughnut Chart
+    // Revenue by Branch - Line Chart
     const revenueCanvas = document.getElementById('revenueChart');
     if (revenueCanvas) {
     new Chart(revenueCanvas.getContext('2d'), {
@@ -270,11 +274,11 @@ document.addEventListener('DOMContentLoaded', function() {
             datasets: [{
                 label: 'Revenue (GH₵)',
                 data: revenues,
-                borderColor: ['#3b82f6', '#10b981', '#f59e0b'],
+                borderColor: '#3b82f6',
                 backgroundColor: 'transparent',
                 tension: 0.4,
-                pointBackgroundColor: ['#3b82f6', '#10b981', '#f59e0b'],
-                pointRadius: 8
+                pointBackgroundColor: '#3b82f6',
+                pointRadius: 6
             }]
         },
         options: {
@@ -298,6 +302,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+    }
     
     // Order Status - Doughnut Chart
     const orderStatusCanvas = document.getElementById('orderStatusChart');
@@ -328,6 +333,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+    }
     
     // Payment Status - Doughnut Chart
     const paymentStatusCanvas = document.getElementById('paymentStatusChart');
@@ -356,7 +362,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-    }
     }
 });
 </script>

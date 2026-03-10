@@ -3,7 +3,7 @@
     <div class="flex h-full w-full flex-1 flex-col gap-6">
         <!-- Header -->
         <div class="flex flex-col gap-2">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Laundry Dashboard</h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Malsnuel Enterprise</h1>
             <p class="text-sm text-gray-500 dark:text-gray-400">Welcome back! Here's what's happening with your laundry today.</p>
         </div>
 
