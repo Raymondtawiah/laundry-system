@@ -7,40 +7,95 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Malsnuel Enterprise">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#18181b">
+<meta name="theme-color" content="#ffffff">
 
-<!-- iOS App Icons -->
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon.png">
-<link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon.png">
-<link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon.png">
+<!-- iOS App Icons - Using logo.jpg -->
+<link rel="apple-touch-icon" sizes="180x180" href="/logo.jpg?v=3">
+<link rel="apple-touch-icon" sizes="152x152" href="/logo.jpg?v=3">
+<link rel="apple-touch-icon" sizes="120x120" href="/logo.jpg?v=3">
+<link rel="apple-touch-icon" sizes="76x76" href="/logo.jpg?v=3">
 
 <!-- iOS App Startup Screens -->
-<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" href="/apple-touch-icon.png">
-<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" href="/apple-touch-icon.png">
-<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" href="/apple-touch-icon.png">
-<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)" href="/apple-touch-icon.png">
-<link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" href="/apple-touch-icon.png">
-<link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)" href="/apple-touch-icon.png">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" href="/logo.jpg?v=3">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" href="/logo.jpg?v=3">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" href="/logo.jpg?v=3">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)" href="/logo.jpg?v=3">
+<link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" href="/logo.jpg?v=3">
+<link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)" href="/logo.jpg?v=3">
 
 <title>
-    {{ filled($title ?? null) ? $title.' - '.config('app.name', 'Laravel') : config('app.name', 'Laravel') }}
+    {{ filled($title ?? null) ? $title.' - '.config('app.name', 'Malsnuel Enterprise') : config('app.name', 'Malsnuel Enterprise') }}
 </title>
 
-<link rel="icon" href="/logo.jpg" type="image/jpeg">
-<link rel="icon" href="/logo.jpg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/logo.jpg">
-<link rel="manifest" href="/manifest.json">
+<!-- Favicon - Using logo.jpg -->
+<link rel="icon" type="image/jpeg" href="/logo.jpg?v=3">
+<link rel="shortcut icon" type="image/jpeg" href="/logo.jpg?v=3">
+<link rel="apple-touch-icon" href="/logo.jpg?v=3">
+<link rel="manifest" href="/manifest.json?v=2">
 
 <link rel="preconnect" href="https://fonts.bunny.net">
 <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
 @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+<!-- Force Light Mode for Flux UI - Must be before @fluxAppearance -->
+<script>
+    // Immediately set localStorage to light before page loads
+    localStorage.setItem('flux-theme', 'light');
+    localStorage.setItem('color-theme', 'light');
+    
+    // Override any dark class immediately
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        localStorage.setItem('flux-theme', 'light');
+        localStorage.setItem('color-theme', 'light');
+    }
+</script>
 @fluxAppearance
 
 <script>
+// Ensure light mode is enforced after page loads
 document.addEventListener('DOMContentLoaded', function() {
-    // PWA Install Prompt
+    // Force remove dark class and add light
+    document.documentElement.classList.remove('dark');
+    document.documentElement.classList.add('light');
+    localStorage.setItem('flux-theme', 'light');
+    localStorage.setItem('color-theme', 'light');
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to detect if device is a mobile phone (strict check)
+    function isMobilePhone() {
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        
+        // Check for mobile devices
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+        
+        // Additional check: screen size should be small (phone-sized)
+        const isSmallScreen = window.innerWidth <= 768;
+        
+        // Check if it's NOT a desktop/laptop
+        const isDesktop = /Windows|Macintosh|Linux/i.test(userAgent) && !/Mobile/i.test(userAgent);
+        
+        // Only show on phones, not tablets or desktops
+        return isMobile && isSmallScreen && !isDesktop;
+    }
+    
+    // Skip PWA install logic on desktop or tablet
+    if (!isMobilePhone()) {
+        return;
+    }
+    
+    // Check if user previously dismissed the install prompt (don't show again for 7 days)
+    const dismissedTime = localStorage.getItem('pwa-install-dismissed');
+    if (dismissedTime) {
+        const sevenDays = 7 * 24 * 60 * 60 * 1000;
+        if (Date.now() - parseInt(dismissedTime) < sevenDays) {
+            return; // Don't show if dismissed within 7 days
+        }
+    }
+    
     let deferredPrompt;
     const installBanner = document.createElement('div');
     installBanner.id = 'pwa-install-banner';
@@ -49,19 +104,12 @@ document.addEventListener('DOMContentLoaded', function() {
     installBanner.style.display = 'none';
     document.body.appendChild(installBanner);
 
-    // Clear previous dismissal so banner shows on refresh
-    localStorage.removeItem('pwa-install-dismissed');
-
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
+        // Show banner only when the install prompt is available
         installBanner.style.display = 'flex';
     });
-
-    // Show banner after 2 seconds (in case beforeinstallprompt already fired)
-    setTimeout(() => {
-        installBanner.style.display = 'flex';
-    }, 2000);
 
     document.getElementById('pwa-install-btn')?.addEventListener('click', async () => {
         if (deferredPrompt) {
@@ -79,7 +127,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('pwa-dismiss-btn')?.addEventListener('click', () => {
         installBanner.style.display = 'none';
-        localStorage.setItem('pwa-install-dismissed', 'true');
+        // Remember dismissal for 7 days
+        localStorage.setItem('pwa-install-dismissed', Date.now().toString());
     });
 
     // Check if already installed

@@ -57,18 +57,35 @@ class ItemController extends Controller
     /**
      * Show the items list.
      */
-    public function index()
+    public function index(Request $request)
     {
         // Only admin can view items
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Only administrators can view items.');
         }
         
-        $items = Item::where('laundry_id', Auth::user()->laundry_id)
-                    ->orderBy('name')
-                    ->get();
+        $query = Item::where('laundry_id', Auth::user()->laundry_id);
         
-        return view('items.index', compact('items'));
+        // Search filter
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+        
+        // Category filter
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
+        }
+        
+        $items = $query->orderBy('name')->paginate(15);
+        
+        // Get unique categories for the dropdown
+        $categories = Item::where('laundry_id', Auth::user()->laundry_id)
+                    ->distinct()
+                    ->pluck('category')
+                    ->sort()
+                    ->toArray();
+        
+        return view('items.index', compact('items', 'categories'));
     }
 
     /**

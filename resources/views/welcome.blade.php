@@ -83,7 +83,6 @@
                     </div>
                     <span class="text-xl font-semibold text-white">Malsnuel Enterprise</span>
                 </div>
-                @if (Route::has('login'))
                 <nav class="flex items-center gap-3">
                     @auth
                         <a href="{{ route('dashboard') }}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
@@ -93,14 +92,11 @@
                         <a href="{{ route('login') }}" class="px-4 py-2 text-zinc-300 hover:text-white transition-colors">
                             Log in
                         </a>
-                        @if (Route::has('register') && \App\Models\User::where('role', 'admin')->doesntExist())
-                            <a href="{{ route('register') }}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
-                                Get Started
-                            </a>
-                        @endif
+                        <a href="{{ route('register') }}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
+                            Get Started
+                        </a>
                     @endauth
                 </nav>
-                @endif
             </header>
 
             <!-- Hero -->

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Receipt - Order #{{ str_pad($order->id, 3, '0', STR_PAD_LEFT) }}</title>
+    <link rel="icon" href="{{ asset('logo.jpg') }}" type="image/jpeg">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @media print {
@@ -98,9 +99,7 @@
         <!-- Header -->
         <div class="receipt-header">
             <div class="flex items-center justify-center gap-2 mb-2">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                </svg>
+                <img src="{{ asset('logo.jpg') }}" alt="Logo" class="w-12 h-12 object-contain rounded-lg bg-white p-1">
                 <h1 class="text-xl font-bold">LAUNDRY RECEIPT</h1>
             </div>
             <p class="text-sm opacity-90">Order #{{ str_pad($order->id, 3, '0', STR_PAD_LEFT) }}</p>
@@ -155,8 +154,11 @@
                         @case('bag')
                             <span class="inline-block bg-orange-100 text-orange-800 px-3 py-1 rounded-lg text-sm font-semibold mr-1 mb-1">🎒 Bag</span>
                             @break
+                        @case('ironing')
+                            <span class="inline-block bg-yellow-100 text-yellow-800 px-3 py-1 rounded-lg text-sm font-semibold mr-1 mb-1">✨ Ironing</span>
+                            @break
                         @case('deep_cleaning')
-                            <span class="inline-block bg-cyan-100 text-cyan-800 px-3 py-1 rounded-lg text-sm font-semibold mr-1 mb-1">✨ Ironing</span>
+                            <span class="inline-block bg-cyan-100 text-cyan-800 px-3 py-1 rounded-lg text-sm font-semibold mr-1 mb-1">✨ Deep Cleaning</span>
                             @break
                         @default
                             <span class="inline-block bg-gray-100 text-gray-800 px-3 py-1 rounded-lg text-sm font-semibold mr-1 mb-1">{{ ucfirst(str_replace('_', ' ', $serviceType)) }}</span>
@@ -204,6 +206,20 @@
                         GH₵{{ number_format($order->balance, 2) }}
                     </span>
                 </div>
+                @if($order->mode_of_payment)
+                <div class="flex justify-between mt-2">
+                    <span class="font-semibold">Mode of Payment</span>
+                    <span class="font-bold">
+                        @if($order->mode_of_payment === 'Cash')
+                            💵 Cash
+                        @elseif($order->mode_of_payment === 'MoMo')
+                            📱 MoMo
+                        @else
+                            🏦 Bank
+                        @endif
+                    </span>
+                </div>
+                @endif
             </div>
             
             <!-- Status Badge -->

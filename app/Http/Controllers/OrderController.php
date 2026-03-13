@@ -107,6 +107,7 @@ class OrderController extends Controller
                 'delivery_type' => $request->delivery_type,
                 'pickup_type' => $pickupType,
                 'service_type' => json_encode($request->service_types),
+                'mode_of_payment' => $request->mode_of_payment,
                 'total_amount' => $totalAmount,
                 'amount_paid' => 0,
                 'payment_status' => Order::PAYMENT_UNPAID,
@@ -153,6 +154,9 @@ class OrderController extends Controller
         
         $search = $request->get('search', '');
         $branch = $request->get('branch', '');
+        $status = $request->get('status', '');
+        $date = $request->get('date', '');
+        $payment = $request->get('payment', '');
         
         $orders = Order::with(['customer', 'user', 'items'])
                     ->where('laundry_id', Auth::user()->laundry_id)
@@ -168,6 +172,15 @@ class OrderController extends Controller
                     ->when($branch, function($query) use ($branch) {
                         $query->where('branch', $branch);
                     })
+                    ->when($status, function($query) use ($status) {
+                        $query->where('status', $status);
+                    })
+                    ->when($payment, function($query) use ($payment) {
+                        $query->where('payment_status', $payment);
+                    })
+                    ->when($date, function($query) use ($date) {
+                        $query->whereDate('created_at', $date);
+                    })
                     ->when($search, function($query) use ($search) {
                         $query->whereHas('customer', function($q) use ($search) {
                             $q->where('name', 'like', "%{$search}%")
@@ -176,9 +189,9 @@ class OrderController extends Controller
                         ->orWhere('id', 'like', "%{$search}%");
                     })
                     ->orderBy('created_at', 'desc')
-                    ->get();
+                    ->paginate(15);
         
-        return view('orders.index', compact('orders', 'search', 'branch'));
+        return view('orders.index', compact('orders', 'search', 'branch', 'status', 'date', 'payment'));
     }
 
     /**
@@ -319,6 +332,9 @@ class OrderController extends Controller
         }
         
         try {
+            // Load relationships needed for PDF
+            $order->load(['items', 'customer', 'laundry']);
+            
             $pdfService = new PdfService();
             $path = $pdfService->generateReceiptPdf($order);
             
@@ -344,6 +360,9 @@ class OrderController extends Controller
         }
         
         try {
+            // Load relationships needed for PDF
+            $order->load(['items', 'customer', 'laundry']);
+            
             $pdfService = new PdfService();
             $path = $pdfService->generateReceiptPdf($order);
             
@@ -359,6 +378,142 @@ class OrderController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to generate PDF: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Send receipt via SMS.
+     */
+    public function sendReceiptSms(Order $order)
+    {
+        // Only admin and staff can send receipts
+        if (!in_array(Auth::user()->role, ['admin', 'staff'])) {
+            abort(403, 'Only administrators and staff can send receipts.');
+        }
+        
+        // Make sure the order belongs to the same laundry
+        if ($order->laundry_id !== Auth::user()->laundry_id) {
+            abort(403, 'You cannot send receipt for this order.');
+        }
+        
+        // Staff can only send their branch orders
+        if (Auth::user()->role === 'staff' && $order->branch !== Auth::user()->branch) {
+            abort(403, 'You can only send receipts from your branch.');
+        }
+        
+        try {
+            $smsService = new SmsService();
+            $result = $smsService->sendReceiptSms($order);
+            
+            if ($result) {
+                return back()->with('toast', ['type' => 'success', 'message' => 'Receipt sent via SMS!']);
+            } else {
+                return back()->with('toast', ['type' => 'error', 'message' => 'Failed to send SMS. Customer phone number may be missing.']);
+            }
+        } catch (\Exception $e) {
+            return back()->with('toast', ['type' => 'error', 'message' => 'Failed to send SMS: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Get order details as JSON for modal.
+     */
+    public function getOrderDetails(Order $order)
+    {
+        // Only admin and staff can view
+        if (!in_array(Auth::user()->role, ['admin', 'staff'])) {
+            abort(403, 'Only administrators and staff can view order details.');
+        }
+        
+        // Make sure the order belongs to the same laundry
+        if ($order->laundry_id !== Auth::user()->laundry_id) {
+            abort(403, 'You cannot view this order.');
+        }
+        
+        $items = $order->items->map(function($item) {
+            return [
+                'name' => $item->name,
+                'quantity' => $item->pivot->quantity,
+                'unit_price' => $item->pivot->unit_price,
+                'subtotal' => $item->pivot->subtotal,
+            ];
+        });
+        
+        return response()->json([
+            'order' => [
+                'id' => $order->id,
+                'status' => $order->status,
+                'branch' => $order->branch,
+                'created_at' => $order->created_at->format('M d, Y h:i A'),
+                'subtotal' => $order->subtotal,
+                'discount' => $order->discount,
+                'total_amount' => $order->total_amount,
+                'paid' => $order->paid,
+                'balance' => $order->balance,
+            ],
+            'customer' => [
+                'name' => $order->customer->name ?? 'N/A',
+                'phone' => $order->customer->phone ?? 'N/A',
+            ],
+            'items' => $items,
+        ]);
+    }
+
+    /**
+     * Generate WhatsApp notification URL for order ready.
+     */
+    public function getWhatsAppUrl(Order $order)
+    {
+        // Only admin and staff can send notifications
+        if (!in_array(Auth::user()->role, ['admin', 'staff'])) {
+            abort(403, 'Only administrators and staff can send notifications.');
+        }
+        
+        // Make sure the order belongs to the same laundry
+        if ($order->laundry_id !== Auth::user()->laundry_id) {
+            abort(403, 'You cannot send notification for this order.');
+        }
+        
+        // Staff can only notify for their branch orders
+        if (Auth::user()->role === 'staff' && $order->branch !== Auth::user()->branch) {
+            abort(403, 'You can only notify for orders from your branch.');
+        }
+        
+        try {
+            // Load relationships
+            $order->load(['items', 'customer', 'laundry']);
+            
+            // Try to generate PDF first
+            $pdfUrl = null;
+            try {
+                $pdfService = new PdfService();
+                $path = $pdfService->generateReceiptPdf($order);
+                $pdfUrl = asset('storage/' . $path);
+            } catch (\Exception $e) {
+                // PDF generation failed, continue without PDF link
+                Log::warning('PDF generation failed for WhatsApp: ' . $e->getMessage());
+            }
+            
+            // Generate WhatsApp URL
+            $smsService = new SmsService();
+            $whatsappUrl = $smsService->generateWhatsAppUrl($order, $pdfUrl);
+            
+            if (empty($whatsappUrl)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Customer phone number not found'
+                ], 400);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'url' => $whatsappUrl
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to generate WhatsApp URL: ' . $e->getMessage()
             ], 500);
         }
     }

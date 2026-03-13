@@ -50,4 +50,9 @@ return [
         'key' => env('CALLMEBOT_KEY'),
     ],
 
+    'africastalking' => [
+        'username' => env('AFRICASTALKING_USERNAME', 'sandbox'),
+        'key' => env('AFRICASTALKING_KEY'),
+    ],
+
 ];

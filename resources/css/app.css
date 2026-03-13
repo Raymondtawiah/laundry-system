@@ -6,8 +6,6 @@
 @source '../../vendor/livewire/flux-pro/stubs/**/*.blade.php';
 @source '../../vendor/livewire/flux/stubs/**/*.blade.php';
 
-@custom-variant dark (&:where(.dark, .dark *));
-
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
@@ -26,14 +24,6 @@
     --color-accent: var(--color-neutral-800);
     --color-accent-content: var(--color-neutral-800);
     --color-accent-foreground: var(--color-white);
-}
-
-@layer theme {
-    .dark {
-        --color-accent: var(--color-white);
-        --color-accent-content: var(--color-white);
-        --color-accent-foreground: var(--color-neutral-800);
-    }
 }
 
 @layer base {
@@ -61,6 +51,135 @@ select:focus[data-flux-control] {
     @apply outline-hidden ring-2 ring-accent ring-offset-2 ring-offset-accent-foreground;
 }
 
-/* \[:where(&)\]:size-4 {
+/* Force light mode styles */
+body {
+    background-color: #f9fafb;
+    color: #111827;
+}
+
+/* Flux input text color - force dark text */
+[data-flux-control] {
+    color: #111827 !important;
+}
+
+[data-flux-control]::placeholder {
+    color: #6b7280 !important;
+}
+
+/* Force input and textarea to have dark text */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+input[type="password"],
+textarea,
+select {
+    color: #111827 !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #9ca3af !important;
+}
+
+/* Settings page styling - Force light mode on Flux UI components */
+/* Override Flux navlist for settings sidebar */
+flux\:navlist,
+[navigate] {
+    --color-zinc-50: #fafafa !important;
+    --color-zinc-100: #f5f5f5 !important;
+    --color-zinc-200: #e5e5e5 !important;
+    --color-zinc-300: #d4d4d4 !important;
+    --color-zinc-400: #a3a3a3 !important;
+    --color-zinc-500: #737373 !important;
+    --color-zinc-600: #525252 !important;
+    --color-zinc-700: #404040 !important;
+    --color-zinc-800: #262626 !important;
+    --color-zinc-900: #171717 !important;
+}
+
+/* Settings page container styling */
+.max-md\:flex-col {
+    background-color: #f9fafb;
+}
+
+/* Settings page headings */
+flux\:heading {
+    color: #111827 !important;
+}
+
+flux\:subheading {
+    color: #6b7280 !important;
+}
+
+/* Settings page navlist items */
+a[href*="profile"],
+a[href*="password"],
+a[href*="appearance"],
+a[href*="two-factor"] {
+    color: #374151 !important;
+}
+
+a[href*="profile"]:hover,
+a[href*="password"]:hover,
+a[href*="appearance"]:hover,
+a[href*="two-factor"]:hover {
+    background-color: #f3f4f6 !important;
+}
+
+/* Settings page form backgrounds */
+.max-w-lg {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+}
+
+/* Print styles */
+@media print {
+    body {
+        background: white !important;
+        color: black !important;
+    }
+    
+    .print\:hidden {
+        display: none !important;
+    }
+    
+    .print\:block {
+        display: block !important;
+    }
+    
+    .shadow-sm, .shadow-md, .shadow-lg {
+        box-shadow: none !important;
+    }
+    
+    .border {
+        border: 1px solid #ddd !important;
+    }
+    
+    a {
+        text-decoration: none !important;
+    }
+    
+    .hover\:shadow-md:hover {
+        box-shadow: none !important;
+    }
+    
+    /* Ensure table headers print well */
+    thead {
+        display: table-header-group;
+    }
+    
+    tr {
+        page-break-inside: avoid;
+    }
+    
+    td, th {
+        padding: 8px !important;
+    }
+}
+
+/* [:where(&):size-4 {
     @apply size-4;
 } */

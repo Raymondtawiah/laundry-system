@@ -17,14 +17,25 @@ class CreateOrder extends Component
 
     public function mount()
     {
-        $this->customers = Customer::where('laundry_id', auth()->user()->laundry_id)
+        // Get customers with their pending balances and sort by balance (descending) so those with pending payments appear first
+        $customersQuery = Customer::where('laundry_id', auth()->user()->laundry_id)
+            ->with(['orders' => function($q) {
+                $q->whereIn('payment_status', ['unpaid', 'partial'])
+                  ->where('status', '!=', 'cancelled');
+            }])
             ->when(auth()->user()->role === 'staff' && auth()->user()->branch, function($query) {
                 $query->where('branch', auth()->user()->branch);
-            })
-            ->orderBy('name')
-            ->get()
-            ->toArray();
-            
+            });
+        
+        // Get customers and sort by pending balance
+        $customers = $customersQuery->get()->map(function($customer) {
+            $pendingBalance = $customer->orders->sum('balance');
+            $customer->pending_balance = $pendingBalance;
+            return $customer;
+        })->sortByDesc('pending_balance')->values();
+        
+        $this->customers = $customers->toArray();
+        
         $this->items = $this->getItemsByServiceTypes();
         
         // Add one empty item row by default
@@ -39,14 +50,16 @@ class CreateOrder extends Component
         // Filter items by selected service types/categories
         if (!empty($this->service_types)) {
             $categoryMap = [
-                'washing' => 'Executive Wear',
-                'ironing' => 'Native Wear',
-                'drying' => 'Ladies Wear',
-                'bag wash' => 'Bag Wash',
-                'bedding_decor' => 'Bedding and Decor',
-                'sneakers' => 'Sneakers',
-                'bag' => 'Bag',
-                'deep_cleaning' => 'Ironing',
+                'executive_wear' => 'Executive Wear',
+                'native_wear' => 'Native Wear',
+                'ladies_wear' => 'Ladies Wear',
+                'bedding_decor' => 'Bedding & Decor',
+                'bag_wash' => 'Bag Wash',
+                'washing' => 'Washing',
+                'ironing' => 'Ironing',
+                'casual_wear' => 'Casual Wear',
+                'deep_cleaning' => 'Deep Cleaning',
+                'sofa_cleaning' => 'Sofa Cleaning',
             ];
             
             $categories = [];

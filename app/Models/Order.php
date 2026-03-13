@@ -23,6 +23,7 @@ class Order extends Model
         'delivery_type',
         'pickup_type',
         'service_type',
+        'mode_of_payment',
         'total_amount',
         'amount_paid',
         'payment_status',

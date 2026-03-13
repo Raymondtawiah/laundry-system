@@ -18,16 +18,22 @@ class PdfService
         try {
             $html = $this->getReceiptHtml($order);
             
+            Log::info('Generating PDF for order: ' . $order->id);
+            Log::info('HTML length: ' . strlen($html));
+            
             $options = new Options();
             $options->set('isHtml5ParserEnabled', true);
             $options->set('isRemoteEnabled', false);
             $options->set('defaultFont', 'Arial');
+            $options->set('isPhpEnabled', true);
             
             $dompdf = new Dompdf($options);
             $dompdf->loadHtml($html);
             $dompdf->setPaper('A4', 'portrait');
             
             $pdfContent = $dompdf->output();
+            
+            Log::info('PDF generated, size: ' . strlen($pdfContent));
             
             $filename = 'receipt-' . str_pad($order->id, 3, '0', STR_PAD_LEFT) . '.pdf';
             $path = 'receipts/' . $filename;
@@ -40,6 +46,7 @@ class PdfService
             
         } catch (\Exception $e) {
             Log::error("PDF generation failed: " . $e->getMessage());
+            Log::error("Stack trace: " . $e->getTraceAsString());
             throw $e;
         }
     }
@@ -51,30 +58,34 @@ class PdfService
     {
         $itemsHtml = '';
         
-        foreach ($order->items as $item) {
-            $itemsHtml .= '
-                <tr style="border-bottom: 1px dashed #e5e7eb;">
-                    <td style="padding: 12px 8px;">
-                        <div style="font-weight: 600;">' . e($item->name) . '</div>
-                        <div style="color: #6b7280; font-size: 11px;">GH₵' . number_format($item->pivot->unit_price, 2) . ' x ' . $item->pivot->quantity . '</div>
-                    </td>
-                    <td style="padding: 12px 8px; text-align: right; font-weight: 600;">GH₵' . number_format($item->pivot->subtotal, 2) . '</td>
-                </tr>
-            ';
+        if ($order->items && $order->items->count() > 0) {
+            foreach ($order->items as $item) {
+                $itemsHtml .= '
+                    <tr style="border-bottom: 1px dashed #e5e7eb;">
+                        <td style="padding: 12px 8px;">
+                            <div style="font-weight: 600;">' . e($item->name) . '</div>
+                            <div style="color: #6b7280; font-size: 11px;">GH₵' . number_format($item->pivot->unit_price, 2) . ' x ' . $item->pivot->quantity . '</div>
+                        </td>
+                        <td style="padding: 12px 8px; text-align: right; font-weight: 600;">GH₵' . number_format($item->pivot->subtotal, 2) . '</td>
+                    </tr>
+                ';
+            }
+        } else {
+            $itemsHtml = '<tr><td colspan="2" style="padding: 12px 8px; text-align: center; color: #6b7280;">No items</td></tr>';
         }
         
         // Service type badge
         $serviceTypeHtml = '';
         if ($order->service_type) {
             $serviceLabels = [
-                'washing' => '🧥 Executive Wear',
-                'ironing' => '👘 Native Wear',
-                'drying' => '👗 Ladies Wear',
-                'bag wash' => '👜 Bag Wash',
-                'bedding_decor' => '🛏️ Bedding and Decor',
-                'sneakers' => '👟 Sneakers',
-                'bag' => '🎒 Bag',
-                'deep_cleaning' => '✨ Ironing',
+                'washing' => 'Executive Wear',
+                'ironing' => 'Native Wear',
+                'drying' => 'Ladies Wear',
+                'bag wash' => 'Bag Wash',
+                'bedding_decor' => 'Bedding and Decor',
+                'sneakers' => 'Sneakers',
+                'bag' => 'Bag',
+                'deep_cleaning' => 'Deep Cleaning',
             ];
             
             // Handle both JSON array and string
@@ -152,9 +163,6 @@ class PdfService
         <body>
             <div class='receipt-container'>
                 <div class='receipt-header'>
-                    <svg class='header-icon' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                        <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'></path>
-                    </svg>
                     <h1>LAUNDRY RECEIPT</h1>
                     <p>Order #" . str_pad($order->id, 3, '0', STR_PAD_LEFT) . "</p>
                 </div>
@@ -202,6 +210,12 @@ class PdfService
                             <span style='font-weight: 700;'>Balance</span>
                             <span class='total-value balance " . ($order->balance > 0 ? 'balance-due' : 'paid') . "'>GH₵" . number_format($order->balance, 2) . "</span>
                         </div>
+                        " . ($order->mode_of_payment ? "
+                        <div class='total-row'>
+                            <span style='font-weight: 700;'>Mode of Payment</span>
+                            <span class='total-value'>" . ($order->mode_of_payment === 'Cash' ? '💵 Cash' : ($order->mode_of_payment === 'MoMo' ? '📱 MoMo' : '🏦 Bank')) . "</span>
+                        </div>
+                        " : "") . "
                     </div>
                     
                     " . $statusBadge . "

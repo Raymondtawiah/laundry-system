@@ -8,8 +8,21 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\AuthenticatedSessionController;
+use App\Http\Controllers\RegisterController;
 
 Route::view('/', 'welcome')->name('home');
+
+// Authentication routes
+Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
+Route::post('login', [AuthenticatedSessionController::class, 'store'])->name('login.store');
+
+// Registration routes
+Route::get('/register', [RegisterController::class, 'create'])->name('register');
+Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
+
+// Logout route
+Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
 // Verification routes (requires auth but not verified)
 Route::middleware(['auth'])->group(function () {
@@ -51,6 +64,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('orders/{order}/receipt', [OrderController::class, 'receipt'])->name('orders.receipt');
     Route::get('orders/{order}/receipt/pdf', [OrderController::class, 'downloadPdf'])->name('orders.receipt.pdf');
     Route::get('orders/{order}/receipt/whatsapp', [OrderController::class, 'generateReceiptForWhatsApp'])->name('orders.receipt.whatsapp');
+    Route::get('orders/{order}/receipt/sms', [OrderController::class, 'sendReceiptSms'])->name('orders.receipt.sms');
+    Route::get('orders/{order}/details', [OrderController::class, 'getOrderDetails'])->name('orders.details');
+    Route::get('orders/{order}/whatsapp', [OrderController::class, 'getWhatsAppUrl'])->name('orders.whatsapp');
     Route::delete('orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
     
     // Reports - admin only

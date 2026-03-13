@@ -23,9 +23,9 @@ class CustomerController extends Controller
             abort(403, 'You cannot view this customer.');
         }
         
-        // Load customer's orders
+        // Load customer's orders with customer relationship
         $customer->load(['orders' => function($query) {
-            $query->orderBy('created_at', 'desc');
+            $query->with('customer')->orderBy('created_at', 'desc');
         }]);
         
         return view('customers.show', compact('customer'));
@@ -91,7 +91,11 @@ class CustomerController extends Controller
         
         $branch = $request->get('branch', '');
         
-        $customers = Customer::where('laundry_id', Auth::user()->laundry_id)
+        $customers = Customer::withCount('orders')
+                    ->with(['orders' => function($query) {
+                        $query->select('id', 'customer_id', 'total_amount');
+                    }])
+                    ->where('laundry_id', Auth::user()->laundry_id)
                     ->when(Auth::user()->role === 'staff' && Auth::user()->branch, function($query) {
                         $query->where('branch', Auth::user()->branch);
                     })
@@ -102,7 +106,12 @@ class CustomerController extends Controller
                         $query->where('branch', $branch);
                     })
                     ->orderBy('name')
-                    ->get();
+                    ->paginate(15);
+        
+        // Calculate total_spent for each customer
+        foreach ($customers as $customer) {
+            $customer->total_spent = $customer->orders->sum('total_amount');
+        }
         
         return view('customers.index', compact('customers', 'branch'));
     }

@@ -22,7 +22,7 @@ class StaffController extends Controller
         
         $staff = User::where('laundry_id', Auth::user()->laundry_id)
                     ->where('role', 'staff')
-                    ->get();
+                    ->paginate(15);
         
         return view('staff.index', compact('staff'));
     }
@@ -66,7 +66,7 @@ class StaffController extends Controller
             'is_approved' => true,
             'laundry_id' => $admin->laundry_id,
             'branch' => $request->branch,
-            'is_verified' => true,
+            'is_verified' => false,
         ]);
 
         return redirect()->route('dashboard')->with('success', 'Staff member registered successfully!');
