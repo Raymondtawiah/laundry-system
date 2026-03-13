@@ -92,9 +92,11 @@
                         <a href="{{ route('login') }}" class="px-4 py-2 text-zinc-300 hover:text-white transition-colors">
                             Log in
                         </a>
+                        @if(\App\Models\User::where('role', 'admin')->doesntExist())
                         <a href="{{ route('register') }}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
                             Get Started
                         </a>
+                        @endif
                     @endauth
                 </nav>
             </header>

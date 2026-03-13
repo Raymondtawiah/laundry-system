@@ -16,6 +16,11 @@ class RegisterController extends Controller
      */
     public function create()
     {
+        // Check if any admin already exists - only the first admin can register
+        if (User::where('role', 'admin')->exists()) {
+            abort(403, 'Registration is closed. Please contact the admin to create your account.');
+        }
+
         return view('pages.auth.register');
     }
 
@@ -24,6 +29,11 @@ class RegisterController extends Controller
      */
     public function store(Request $request)
     {
+        // Check if any admin already exists - only the first admin can register
+        if (User::where('role', 'admin')->exists()) {
+            abort(403, 'Registration is closed. Please contact the admin to create your account.');
+        }
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
