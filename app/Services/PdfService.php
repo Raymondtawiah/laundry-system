@@ -52,26 +52,26 @@ class PdfService
     }
 
     /**
-     * Get the HTML content for the receipt with matching styling.
+     * Get the HTML content for the receipt with Dompdf-compatible table layout.
      */
     private function getReceiptHtml(Order $order): string
     {
-        $itemsHtml = '';
+        $itemsRows = '';
         
         if ($order->items && $order->items->count() > 0) {
             foreach ($order->items as $item) {
-                $itemsHtml .= '
-                    <tr style="border-bottom: 1px dashed #e5e7eb;">
-                        <td style="padding: 12px 8px;">
-                            <div style="font-weight: 600;">' . e($item->name) . '</div>
-                            <div style="color: #6b7280; font-size: 11px;">GH₵' . number_format($item->pivot->unit_price, 2) . ' x ' . $item->pivot->quantity . '</div>
-                        </td>
-                        <td style="padding: 12px 8px; text-align: right; font-weight: 600;">GH₵' . number_format($item->pivot->subtotal, 2) . '</td>
-                    </tr>
-                ';
+                $itemsRows .= '<tr>
+                    <td style="padding:8px; border-bottom:1px dashed #e5e7eb;">
+                        <strong>' . e($item->name) . '</strong><br/>
+                        <span style="color:#6b7280; font-size:11px;">GH₵' . number_format($item->pivot->unit_price, 2) . ' x ' . $item->pivot->quantity . '</span>
+                    </td>
+                    <td style="padding:8px; text-align:right; border-bottom:1px dashed #e5e7eb; font-weight:bold;">
+                        GH₵' . number_format($item->pivot->subtotal, 2) . '
+                    </td>
+                </tr>';
             }
         } else {
-            $itemsHtml = '<tr><td colspan="2" style="padding: 12px 8px; text-align: center; color: #6b7280;">No items</td></tr>';
+            $itemsRows = '<tr><td colspan="2" style="padding:8px; text-align:center; color:#6b7280;">No items</td></tr>';
         }
         
         // Service type badge
@@ -88,7 +88,6 @@ class PdfService
                 'deep_cleaning' => 'Deep Cleaning',
             ];
             
-            // Handle both JSON array and string
             $serviceTypes = is_array($order->service_type) ? $order->service_type : json_decode($order->service_type, true);
             if (is_string($serviceTypes)) {
                 $serviceTypes = [$serviceTypes];
@@ -98,136 +97,140 @@ class PdfService
                 $badges = [];
                 foreach ($serviceTypes as $serviceType) {
                     $serviceName = $serviceLabels[$serviceType] ?? ucfirst(str_replace('_', ' ', $serviceType));
-                    $badges[] = '<span style="display: inline-block; background: #fef3c7; color: #92400e; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; margin: 2px;">' . $serviceName . '</span>';
+                    $badges[] = $serviceName;
                 }
-                $serviceTypeHtml = '
-                    <div style="text-align: center; margin-bottom: 16px;">' .
-                        implode('', $badges) .
-                    '</div>
-                ';
+                $serviceTypeHtml = '<tr><td colspan="2" style="text-align:center; padding:8px 0; color:#92400e; font-weight:bold; font-size:12px;">' . implode(' | ', $badges) . '</td></tr>';
             }
         }
         
         // Status badge
-        $statusBadge = '';
+        $statusRow = '';
         if ($order->status === 'ready') {
-            $statusBadge = '<div style="text-align: center; margin-top: 20px;">
-                <span style="display: inline-flex; align-items: center; gap: 4px; background: #dcfce7; color: #166534; padding: 6px 16px; border-radius: 9999px; font-size: 14px; font-weight: 500;">
-                    ✓ Ready for Pickup
-                </span>
-            </div>';
+            $statusRow = '<tr><td colspan="2" style="text-align:center; padding:12px 0; color:#166534; font-weight:bold;">Ready for Pickup</td></tr>';
         } elseif ($order->status === 'completed') {
-            $statusBadge = '<div style="text-align: center; margin-top: 20px;">
-                <span style="display: inline-flex; align-items: center; gap: 4px; background: #dbeafe; color: #1e40af; padding: 6px 16px; border-radius: 9999px; font-size: 14px; font-weight: 500;">
-                    ✓ Completed
-                </span>
-            </div>';
+            $statusRow = '<tr><td colspan="2" style="text-align:center; padding:12px 0; color:#1e40af; font-weight:bold;">Completed</td></tr>';
         }
         
-        return "
+        $balanceColor = $order->balance > 0 ? '#dc2626' : '#059669';
+        
+        $modeOfPayment = '';
+        if ($order->mode_of_payment) {
+            $modeLabel = $order->mode_of_payment;
+            $modeRow = '<tr>
+                <td style="padding:6px 0; font-weight:bold;">Mode of Payment</td>
+                <td style="padding:6px 0; text-align:right; font-weight:bold;">' . e($modeLabel) . '</td>
+            </tr>';
+        } else {
+            $modeRow = '';
+        }
+
+        $orderNumber = str_pad($order->id, 3, '0', STR_PAD_LEFT);
+
+        return '
         <!DOCTYPE html>
         <html>
         <head>
-            <meta charset='UTF-8'>
-            <title>Receipt - Order #" . str_pad($order->id, 3, '0', STR_PAD_LEFT) . "</title>
+            <meta charset="UTF-8">
+            <title>Receipt - Order #' . $orderNumber . '</title>
             <style>
-                * { margin: 0; padding: 0; box-sizing: border-box; }
-                body { font-family: 'Segoe UI', Arial, sans-serif; background: #f3f4f6; padding: 20px; min-height: 100vh; }
-                .receipt-container { background: white; border-radius: 16px; max-width: 450px; margin: 0 auto; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
-                .receipt-header { background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; padding: 32px 24px; text-align: center; }
-                .header-icon { width: 48px; height: 48px; margin: 0 auto 12px; }
-                .receipt-header h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
-                .receipt-header p { font-size: 14px; opacity: 0.9; }
-                .receipt-body { padding: 24px; }
-                .info-card { background: #f9fafb; border-radius: 12px; padding: 16px; margin-bottom: 20px; }
-                .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-                .info-label { color: #6b7280; font-size: 11px; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
-                .info-value { font-weight: 600; margin-top: 2px; }
-                .info-value.small { font-size: 12px; color: #6b7280; }
-                .section-title { color: #6b7280; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
-                .divider { height: 2px; background: linear-gradient(90deg, transparent, #059669, transparent); margin: 20px 0; }
+                body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
                 table { width: 100%; border-collapse: collapse; }
-                .total-section { background: #f0fdf4; border-radius: 12px; padding: 16px; margin-top: 20px; border: 1px solid #bbf7d0; }
-                .total-row { display: flex; justify-content: space-between; padding: 6px 0; }
-                .total-row.main { border-top: 1px solid #bbf7d0; margin-top: 8px; padding-top: 12px; }
-                .total-label { color: #374151; }
-                .total-value { font-weight: 600; }
-                .total-value.paid { color: #059669; }
-                .total-value.balance { font-size: 18px; }
-                .total-value.balance-due { color: #dc2626; }
-                .receipt-footer { background: #f9fafb; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb; }
-                .footer-text { color: #6b7280; font-weight: 500; margin-bottom: 4px; }
-                .footer-subtext { color: #9ca3af; font-size: 12px; }
             </style>
         </head>
         <body>
-            <div class='receipt-container'>
-                <div class='receipt-header'>
-                    <h1>LAUNDRY RECEIPT</h1>
-                    <p>Order #" . str_pad($order->id, 3, '0', STR_PAD_LEFT) . "</p>
-                </div>
+            <table>
+                <!-- Header -->
+                <tr>
+                    <td colspan="2" style="background:#059669; color:white; padding:24px; text-align:center;">
+                        <h1 style="margin:0; font-size:22px;">LAUNDRY RECEIPT</h1>
+                        <p style="margin:4px 0 0 0; font-size:14px;">Order #' . $orderNumber . '</p>
+                    </td>
+                </tr>
                 
-                <div class='receipt-body'>
-                    <div class='info-card'>
-                        <div class='info-grid'>
-                            <div>
-                                <div class='info-label'>Date</div>
-                                <div class='info-value'>" . $order->created_at->format('M d, Y') . "</div>
-                                <div class='info-value small'>" . $order->created_at->format('h:i A') . "</div>
-                            </div>
-                            <div>
-                                <div class='info-label'>Branch</div>
-                                <div class='info-value'>" . ($order->branch ?? 'N/A') . "</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    " . $serviceTypeHtml . "
-                    
-                    <div style='margin-bottom: 20px;'>
-                        <div class='info-label'>Customer Name</div>
-                        <div style='font-weight: 700; font-size: 18px;'>" . e($order->customer->name) . "</div>
-                        <div style='color: #4b5563;'>" . e($order->customer->phone) . "</div>
-                    </div>
-                    
-                    <div class='divider'></div>
-                    
-                    <div style='margin-bottom: 20px;'>
-                        <div class='section-title'>Items</div>
-                        <table><tbody>" . $itemsHtml . "</tbody></table>
-                    </div>
-                    
-                    <div class='total-section'>
-                        <div class='total-row'>
-                            <span class='total-label'>Total</span>
-                            <span class='total-value'>GH₵" . number_format($order->total_amount, 2) . "</span>
-                        </div>
-                        <div class='total-row'>
-                            <span class='total-label'>Paid</span>
-                            <span class='total-value paid'>GH₵" . number_format($order->amount_paid, 2) . "</span>
-                        </div>
-                        <div class='total-row main'>
-                            <span style='font-weight: 700;'>Balance</span>
-                            <span class='total-value balance " . ($order->balance > 0 ? 'balance-due' : 'paid') . "'>GH₵" . number_format($order->balance, 2) . "</span>
-                        </div>
-                        " . ($order->mode_of_payment ? "
-                        <div class='total-row'>
-                            <span style='font-weight: 700;'>Mode of Payment</span>
-                            <span class='total-value'>" . ($order->mode_of_payment === 'Cash' ? '💵 Cash' : ($order->mode_of_payment === 'MoMo' ? '📱 MoMo' : '🏦 Bank')) . "</span>
-                        </div>
-                        " : "") . "
-                    </div>
-                    
-                    " . $statusBadge . "
-                </div>
+                <tr><td colspan="2" style="height:20px;"></td></tr>
                 
-                <div class='receipt-footer'>
-                    <div class='footer-text'>Thank you for your business!</div>
-                    <div class='footer-subtext'>Please come again</div>
-                </div>
-            </div>
+                <!-- Date & Branch -->
+                <tr>
+                    <td style="padding:12px; background:#f9fafb; width:50%; vertical-align:top;">
+                        <div style="color:#6b7280; font-size:10px; text-transform:uppercase; font-weight:bold;">Date</div>
+                        <div style="font-weight:bold; margin-top:4px;">' . $order->created_at->format('M d, Y') . '</div>
+                        <div style="color:#6b7280; font-size:12px;">' . $order->created_at->format('h:i A') . '</div>
+                    </td>
+                    <td style="padding:12px; background:#f9fafb; width:50%; vertical-align:top;">
+                        <div style="color:#6b7280; font-size:10px; text-transform:uppercase; font-weight:bold;">Branch</div>
+                        <div style="font-weight:bold; margin-top:4px;">' . e($order->branch ?? 'N/A') . '</div>
+                    </td>
+                </tr>
+                
+                <tr><td colspan="2" style="height:16px;"></td></tr>
+                
+                <!-- Service Type -->
+                ' . $serviceTypeHtml . '
+                
+                <!-- Customer -->
+                <tr>
+                    <td colspan="2" style="padding:0 0 16px 0;">
+                        <div style="color:#6b7280; font-size:10px; text-transform:uppercase; font-weight:bold;">Customer Name</div>
+                        <div style="font-weight:bold; font-size:18px; margin-top:4px;">' . e($order->customer->name) . '</div>
+                        <div style="color:#4b5563;">' . e($order->customer->phone) . '</div>
+                    </td>
+                </tr>
+                
+                <!-- Divider -->
+                <tr><td colspan="2" style="border-top:2px solid #059669; height:4px;"></td></tr>
+                <tr><td colspan="2" style="height:12px;"></td></tr>
+                
+                <!-- Items Header -->
+                <tr>
+                    <td colspan="2" style="color:#6b7280; font-size:10px; text-transform:uppercase; font-weight:bold; padding-bottom:8px;">
+                        Items
+                    </td>
+                </tr>
+                
+                <!-- Items -->
+                ' . $itemsRows . '
+                
+                <tr><td colspan="2" style="height:16px;"></td></tr>
+                
+                <!-- Totals -->
+                <tr>
+                    <td colspan="2" style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:16px;">
+                        <table>
+                            <tr>
+                                <td style="padding:6px 0;">Total</td>
+                                <td style="padding:6px 0; text-align:right; font-weight:bold;">GH₵' . number_format($order->total_amount, 2) . '</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:6px 0;">Paid</td>
+                                <td style="padding:6px 0; text-align:right; font-weight:bold; color:#059669;">GH₵' . number_format($order->amount_paid, 2) . '</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="border-top:1px solid #bbf7d0; height:8px;"></td>
+                            </tr>
+                            <tr>
+                                <td style="padding:6px 0; font-weight:bold; font-size:16px;">Balance</td>
+                                <td style="padding:6px 0; text-align:right; font-weight:bold; font-size:18px; color:' . $balanceColor . ';">GH₵' . number_format($order->balance, 2) . '</td>
+                            </tr>
+                            ' . $modeRow . '
+                        </table>
+                    </td>
+                </tr>
+                
+                <!-- Status -->
+                ' . $statusRow . '
+                
+                <tr><td colspan="2" style="height:16px;"></td></tr>
+                
+                <!-- Footer -->
+                <tr>
+                    <td colspan="2" style="background:#f9fafb; padding:20px; text-align:center; border-top:1px solid #e5e7eb;">
+                        <div style="font-weight:bold; color:#6b7280;">Thank you for your business!</div>
+                        <div style="color:#9ca3af; font-size:12px;">Please come again</div>
+                    </td>
+                </tr>
+            </table>
         </body>
         </html>
-        ";
+        ';
     }
 }
