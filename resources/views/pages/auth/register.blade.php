@@ -36,8 +36,20 @@
                 <p class="text-gray-500 mt-1">Laundry Management System</p>
             </div>
 
-            <h2 class="text-xl font-bold text-gray-800 mb-1">Create Account</h2>
-            <p class="text-gray-500 text-sm mb-5">Enter your details to get started</p>
+            <h2 class="text-xl font-bold text-gray-800 mb-1">
+                @if(isset($registrationClosed) && $registrationClosed)
+                    Registration Closed
+                @else
+                    Create Account
+                @endif
+            </h2>
+            <p class="text-gray-500 text-sm mb-5">
+                @if(isset($registrationClosed) && $registrationClosed)
+                    Please contact the admin to create your account.
+                @else
+                    Enter your details to get started
+                @endif
+            </p>
 
             <!-- Session Status -->
             @if (session('status'))
@@ -65,11 +77,11 @@
                         name="name" 
                         id="name"
                         value="{{ old('name') }}"
-                        required 
+                        {{ isset($registrationClosed) && $registrationClosed ? 'disabled' : 'required' }}
                         autofocus
                         autocomplete="name"
                         placeholder="John Doe"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900 disabled:bg-gray-100 disabled:text-gray-500"
                     >
                 </div>
 
@@ -81,10 +93,10 @@
                         name="email" 
                         id="email"
                         value="{{ old('email') }}"
-                        required 
+                        {{ isset($registrationClosed) && $registrationClosed ? 'disabled' : 'required' }}
                         autocomplete="email"
                         placeholder="you@example.com"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900 disabled:bg-gray-100 disabled:text-gray-500"
                     >
                 </div>
 
@@ -95,17 +107,19 @@
                         type="password" 
                         name="password" 
                         id="password"
-                        required 
+                        {{ isset($registrationClosed) && $registrationClosed ? 'disabled' : 'required' }}
                         autocomplete="new-password"
                         placeholder="Create a password"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900 pr-12"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900 pr-12 disabled:bg-gray-100 disabled:text-gray-500"
                     >
+                    @if(!isset($registrationClosed) || !$registrationClosed)
                     <button type="button" onclick="togglePassword('password')" class="absolute right-3 top-9 text-gray-500 hover:text-gray-700">
                         <svg id="password-eye" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                         </svg>
                     </button>
+                    @endif
                 </div>
 
                 <!-- Confirm Password -->
@@ -115,25 +129,30 @@
                         type="password" 
                         name="password_confirmation" 
                         id="password_confirmation"
-                        required 
+                        {{ isset($registrationClosed) && $registrationClosed ? 'disabled' : 'required' }}
                         autocomplete="new-password"
                         placeholder="Confirm your password"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900 pr-12"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white text-gray-900 pr-12 disabled:bg-gray-100 disabled:text-gray-500"
                     >
+                    @if(!isset($registrationClosed) || !$registrationClosed)
                     <button type="button" onclick="togglePassword('password_confirmation')" class="absolute right-3 top-9 text-gray-500 hover:text-gray-700">
                         <svg id="password_confirmation-eye" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                         </svg>
                     </button>
+                    @endif
                 </div>
 
                 <!-- Submit -->
                 <button 
                     type="submit" 
-                    class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg mt-2"
+                    @if(isset($registrationClosed) && $registrationClosed)
+                    disabled
+                    @endif
+                    class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg mt-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
-                    Create Account
+                    {{ isset($registrationClosed) && $registrationClosed ? 'Registration Closed' : 'Create Account' }}
                 </button>
             </form>
 

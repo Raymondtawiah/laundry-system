@@ -9,8 +9,12 @@
     <style>
         @media print {
             .no-print { display: none !important; }
-            body { background: white !important; }
-            .receipt-container { box-shadow: none !important; border: none !important; }
+            body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .receipt-container { box-shadow: none !important; border: 2px solid #000 !important; }
+            .receipt-header { background: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .receipt-body { padding: 1rem !important; }
+            .bg-gray-50, .total-section { background: #f5f5f5 !important; }
+            .badge { background: #e5e5e5 !important; color: #000 !important; border: 1px solid #000 !important; }
         }
         
         body {
@@ -29,10 +33,11 @@
             max-width: 400px;
             width: 100%;
             overflow: hidden;
+            border: 2px solid #000;
         }
         
         .receipt-header {
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            background: #000;
             color: white;
             padding: 1.5rem;
             text-align: center;
@@ -46,12 +51,12 @@
             background: #f9fafb;
             padding: 1rem;
             text-align: center;
-            border-top: 1px solid #e5e7eb;
+            border-top: 1px solid #000;
         }
         
         .divider {
             height: 2px;
-            background: linear-gradient(90deg, transparent, #059669, transparent);
+            background: #000;
             margin: 1rem 0;
         }
         
@@ -59,7 +64,7 @@
             display: flex;
             justify-content: space-between;
             padding: 0.5rem 0;
-            border-bottom: 1px dashed #e5e7eb;
+            border-bottom: 1px dashed #000;
         }
         
         .item-row:last-child {
@@ -67,15 +72,15 @@
         }
         
         .total-section {
-            background: #f0fdf4;
+            background: #f5f5f5;
             border-radius: 0.5rem;
             padding: 1rem;
             margin-top: 1rem;
-            border: 1px solid #bbf7d0;
+            border: 1px solid #000;
         }
         
         .print-btn {
-            background: #059669;
+            background: #000;
             color: white;
             padding: 0.75rem 1.5rem;
             border-radius: 0.5rem;
@@ -89,8 +94,18 @@
         }
         
         .print-btn:hover {
-            background: #047857;
+            background: #333;
             transform: translateY(-1px);
+        }
+        
+        .badge {
+            background: #f5f5f5;
+            color: #000;
+            border: 1px solid #000;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -108,7 +123,7 @@
         <!-- Body -->
         <div class="receipt-body">
             <!-- Customer Info -->
-            <div class="bg-gray-50 rounded-lg p-3 mb-4">
+            <div style="background: #f5f5f5; padding: 0.75rem; margin-bottom: 1rem; border: 1px solid #000; border-radius: 0.5rem;">
                 <div class="grid grid-cols-2 gap-2 text-sm">
                     <div>
                         <p class="text-gray-500 text-xs">Date</p>
@@ -132,37 +147,7 @@
             @if($serviceTypes && count($serviceTypes) > 0)
             <div class="text-center mb-4">
                 @foreach($serviceTypes as $serviceType)
-                    @switch($serviceType)
-                        @case('washing')
-                            <span class="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-lg text-sm font-semibold mr-1 mb-1">🧥 Executive Wear</span>
-                            @break
-                        @case('ironing')
-                            <span class="inline-block bg-purple-100 text-purple-800 px-3 py-1 rounded-lg text-sm font-semibold mr-1 mb-1">👘 Native Wear</span>
-                            @break
-                        @case('drying')
-                            <span class="inline-block bg-pink-100 text-pink-800 px-3 py-1 rounded-lg text-sm font-semibold mr-1 mb-1">👗 Ladies Wear</span>
-                            @break
-                        @case('bag wash')
-                            <span class="inline-block bg-amber-100 text-amber-800 px-3 py-1 rounded-lg text-sm font-semibold mr-1 mb-1">👜 Bag Wash</span>
-                            @break
-                        @case('bedding_decor')
-                            <span class="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-lg text-sm font-semibold mr-1 mb-1">🛏️ Bedding and Decor</span>
-                            @break
-                        @case('sneakers')
-                            <span class="inline-block bg-red-100 text-red-800 px-3 py-1 rounded-lg text-sm font-semibold mr-1 mb-1">👟 Sneakers</span>
-                            @break
-                        @case('bag')
-                            <span class="inline-block bg-orange-100 text-orange-800 px-3 py-1 rounded-lg text-sm font-semibold mr-1 mb-1">🎒 Bag</span>
-                            @break
-                        @case('ironing')
-                            <span class="inline-block bg-yellow-100 text-yellow-800 px-3 py-1 rounded-lg text-sm font-semibold mr-1 mb-1">✨ Ironing</span>
-                            @break
-                        @case('deep_cleaning')
-                            <span class="inline-block bg-cyan-100 text-cyan-800 px-3 py-1 rounded-lg text-sm font-semibold mr-1 mb-1">✨ Deep Cleaning</span>
-                            @break
-                        @default
-                            <span class="inline-block bg-gray-100 text-gray-800 px-3 py-1 rounded-lg text-sm font-semibold mr-1 mb-1">{{ ucfirst(str_replace('_', ' ', $serviceType)) }}</span>
-                    @endswitch
+                    <span class="badge">{{ ucfirst(str_replace('_', ' ', $serviceType)) }}</span>
                 @endforeach
             </div>
             @endif
@@ -224,25 +209,15 @@
             
             <!-- Status Badge -->
             <div class="mt-4 text-center">
-                @if($order->status === 'ready')
-                <span class="inline-flex items-center gap-1 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                    </svg>
-                    Ready for Pickup
+                <span class="badge">
+                    @if($order->status === 'ready')
+                        Ready for Pickup
+                    @elseif($order->status === 'completed')
+                        Completed
+                    @else
+                        {{ ucfirst($order->status) }}
+                    @endif
                 </span>
-                @elseif($order->status === 'completed')
-                <span class="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                    </svg>
-                    Completed
-                </span>
-                @else
-                <span class="inline-flex items-center gap-1 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
-                    {{ ucfirst($order->status) }}
-                </span>
-                @endif
             </div>
         </div>
         

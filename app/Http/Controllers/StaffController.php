@@ -4,9 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules\Password;
 
 class StaffController extends Controller
 {
@@ -19,11 +18,11 @@ class StaffController extends Controller
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Only administrators can view staff members.');
         }
-        
+
         $staff = User::where('laundry_id', Auth::user()->laundry_id)
-                    ->where('role', 'staff')
-                    ->paginate(15);
-        
+            ->where('role', 'staff')
+            ->paginate(15);
+
         return view('staff.index', compact('staff'));
     }
 
@@ -36,7 +35,7 @@ class StaffController extends Controller
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Only administrators can register staff members.');
         }
-        
+
         return view('staff.register');
     }
 
@@ -48,7 +47,7 @@ class StaffController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'phone' => ['nullable', 'string', 'max:20'],
+            'phone' => ['nullable', 'string', 'min:10', 'max:20'],
             'password' => ['required', 'confirmed', Password::defaults()],
             'branch' => ['required', 'in:Daasebre,Nyamekrom,KTU'],
         ]);
@@ -81,14 +80,14 @@ class StaffController extends Controller
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Only administrators can delete staff members.');
         }
-        
+
         // Make sure the staff belongs to the same laundry
         if ($staff->laundry_id !== Auth::user()->laundry_id) {
             abort(403, 'You cannot delete this staff member.');
         }
-        
+
         $staff->delete();
-        
+
         return redirect()->route('staff.index')->with('success', 'Staff member deleted successfully!');
     }
 
@@ -101,16 +100,17 @@ class StaffController extends Controller
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Only administrators can verify staff members.');
         }
-        
+
         // Make sure the staff belongs to the same laundry
         if ($staff->laundry_id !== Auth::user()->laundry_id) {
             abort(403, 'You cannot modify this staff member.');
         }
-        
-        $staff->is_verified = !$staff->is_verified;
+
+        $staff->is_verified = ! $staff->is_verified;
         $staff->save();
-        
+
         $status = $staff->is_verified ? 'verified' : 'unverified';
+
         return redirect()->route('staff.index')->with('success', "Staff member {$status} successfully!");
     }
 }

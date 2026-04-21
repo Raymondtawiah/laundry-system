@@ -104,8 +104,8 @@
                                         @endswitch
                                     </td>
                                     <td class="px-4 py-3 hidden md:table-cell">
-                                        @if($member->laundry)
-                                            <span class="text-sm text-gray-600">{{ $member->laundry->name }}</span>
+                                        @if($member->branch)
+                                            <span class="text-sm text-gray-600">{{ $member->branch }}</span>
                                         @else
                                             <span class="text-sm text-gray-400">-</span>
                                         @endif

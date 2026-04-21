@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
+use App\Models\Expense;
 use App\Models\Order;
 use App\Models\User;
-use App\Models\Customer;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 
 class ReportController extends Controller
 {
@@ -20,6 +21,7 @@ class ReportController extends Controller
             if (Auth::user()->role !== 'admin') {
                 abort(403, 'Access denied. Admin only.');
             }
+
             return $next($request);
         });
     }
@@ -31,35 +33,41 @@ class ReportController extends Controller
     {
         $startDate = $request->get('start_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
         $endDate = $request->get('end_date', Carbon::now()->endOfMonth()->format('Y-m-d'));
-        
+
         // Get branches - use predefined or from database
         $dbBranches = User::whereNotNull('branch')
             ->where('branch', '!=', '')
             ->distinct()
             ->pluck('branch');
-        
+
         // Pre-defined branches (with database fallback)
         $branches = $dbBranches->isNotEmpty() ? $dbBranches : collect(['Daasebre', 'Nyamekrom', 'KTU']);
 
         // Get branch statistics
         $branchStats = $branches->map(function ($branch) use ($startDate, $endDate) {
             $orders = Order::where('branch', $branch)
-                ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59']);
-            
+                ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59']);
+
             $totalOrders = (clone $orders)->count();
             $completedOrders = (clone $orders)->where('status', Order::STATUS_COMPLETED)->count();
             $pendingOrders = (clone $orders)->where('status', Order::STATUS_PENDING)->count();
             $inProgressOrders = (clone $orders)->where('status', Order::STATUS_IN_PROGRESS)->count();
             $readyOrders = (clone $orders)->where('status', Order::STATUS_READY)->count();
             $cancelledOrders = (clone $orders)->where('status', Order::STATUS_CANCELLED)->count();
-            
+
             $totalRevenue = (clone $orders)->sum('total_amount');
             $totalPaid = (clone $orders)->where('payment_status', Order::PAYMENT_PAID)->sum('amount_paid');
             $totalUnpaid = (clone $orders)->whereIn('payment_status', [Order::PAYMENT_UNPAID, Order::PAYMENT_PARTIAL])->sum('balance');
-            
+
             $customers = Customer::where('branch', $branch)
-                ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
+                ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])
                 ->count();
+
+            $totalExpenses = Expense::where('branch', $branch)
+                ->whereBetween('date', [$startDate, $endDate])
+                ->sum('amount');
+
+            $netTotal = $totalRevenue - $totalExpenses;
 
             return [
                 'branch' => $branch,
@@ -72,6 +80,8 @@ class ReportController extends Controller
                 'total_revenue' => $totalRevenue,
                 'total_paid' => $totalPaid,
                 'total_unpaid' => $totalUnpaid,
+                'total_expenses' => $totalExpenses,
+                'net_total' => $netTotal,
                 'new_customers' => $customers,
             ];
         });
@@ -87,6 +97,8 @@ class ReportController extends Controller
             'total_revenue' => $branchStats->sum('total_revenue'),
             'total_paid' => $branchStats->sum('total_paid'),
             'total_unpaid' => $branchStats->sum('total_unpaid'),
+            'total_expenses' => $branchStats->sum('total_expenses'),
+            'net_total' => $branchStats->sum('net_total'),
             'total_customers' => $branchStats->sum('new_customers'),
         ];
 
@@ -100,7 +112,7 @@ class ReportController extends Controller
         ];
 
         // Get payment status breakdown
-        $paymentBreakdown = Order::whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
+        $paymentBreakdown = Order::whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])
             ->selectRaw("
                 SUM(CASE WHEN payment_status = 'paid' THEN 1 ELSE 0 END) as paid,
                 SUM(CASE WHEN payment_status = 'partial' THEN 1 ELSE 0 END) as partial,
@@ -126,7 +138,7 @@ class ReportController extends Controller
     {
         // Handle period filter
         $period = $request->get('period', 'month');
-        
+
         switch ($period) {
             case 'week':
                 $startDate = Carbon::now()->startOfWeek()->format('Y-m-d');
@@ -155,7 +167,7 @@ class ReportController extends Controller
         $clientPaymentFilter = $request->get('client_payment');
 
         $query = Order::where('branch', $branch)
-            ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59']);
+            ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59']);
 
         // Apply status filter if provided
         if ($statusFilter) {
@@ -178,7 +190,7 @@ class ReportController extends Controller
 
         // Basic stats
         $allOrders = Order::where('branch', $branch)
-            ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
+            ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])
             ->get();
 
         $stats = [
@@ -196,7 +208,7 @@ class ReportController extends Controller
 
         // Customer payment breakdown
         $customerStats = $this->getCustomerPaymentStats($branch, $startDate, $endDate);
-        
+
         // Get client list with payment status
         $clientList = $this->getClientPaymentList($branch, $startDate, $endDate, $clientPaymentFilter);
 
@@ -210,7 +222,7 @@ class ReportController extends Controller
     {
         // Get all orders for the branch in the date range
         $orders = Order::where('branch', $branch)
-            ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
+            ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])
             ->get();
 
         // Get unique customers with their payment status
@@ -257,24 +269,26 @@ class ReportController extends Controller
     private function getClientPaymentList($branch, $startDate, $endDate, $filter = null)
     {
         $orders = Order::where('branch', $branch)
-            ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
+            ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])
             ->with('customer')
             ->get();
 
         // Group by customer and calculate payment status
         $customerData = [];
-        
+
         foreach ($orders->groupBy('customer_id') as $customerId => $customerOrders) {
             $customer = $customerOrders->first()->customer;
-            if (!$customer) continue;
-            
+            if (! $customer) {
+                continue;
+            }
+
             $totalAmount = $customerOrders->sum('total_amount');
             $totalPaid = $customerOrders->sum('amount_paid');
             $totalBalance = $customerOrders->sum('balance');
             $orderCount = $customerOrders->count();
             $hasPending = $customerOrders->where('status', 'pending')->count() > 0;
             $hasPartial = $customerOrders->where('payment_status', 'partial')->count() > 0;
-            
+
             // Determine payment status
             if ($totalBalance > 0 && $totalPaid > 0) {
                 $status = 'partial';
@@ -283,14 +297,14 @@ class ReportController extends Controller
             } else {
                 $status = 'paid';
             }
-            
+
             // Apply filter
             if ($filter && $filter !== $status) {
-                if (!($filter === 'with_balance' && $totalBalance > 0)) {
+                if (! ($filter === 'with_balance' && $totalBalance > 0)) {
                     continue;
                 }
             }
-            
+
             $customerData[] = [
                 'id' => $customer->id,
                 'name' => $customer->name,
@@ -304,12 +318,12 @@ class ReportController extends Controller
                 'has_partial' => $hasPartial,
             ];
         }
-        
+
         // Sort by balance (highest first)
-        usort($customerData, function($a, $b) {
+        usort($customerData, function ($a, $b) {
             return $b['total_balance'] - $a['total_balance'];
         });
-        
+
         return $customerData;
     }
 }

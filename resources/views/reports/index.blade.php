@@ -36,58 +36,30 @@
         </div>
 
         <!-- Overall Stats -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <div class="rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm">
-                <div class="flex items-center gap-3">
-                    <div class="rounded-full bg-blue-100 p-2 sm:p-3">
-                        <svg class="h-5 sm:h-6 w-5 sm:w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-xs sm:text-sm font-medium text-gray-500">Total Orders</p>
-                        <p class="text-xl sm:text-2xl font-bold text-gray-900">{{ $overallStats['total_orders'] }}</p>
-                    </div>
-                </div>
+        <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
+            <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <p class="text-xs sm:text-sm font-medium text-gray-500 mb-1">Total Orders</p>
+                <p class="text-lg sm:text-xl font-bold text-gray-900">{{ $overallStats['total_orders'] }}</p>
             </div>
-            <div class="rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm">
-                <div class="flex items-center gap-3">
-                    <div class="rounded-full bg-green-100 p-2 sm:p-3">
-                        <svg class="h-5 sm:h-6 w-5 sm:w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-xs sm:text-sm font-medium text-gray-500">Completed</p>
-                        <p class="text-xl sm:text-2xl font-bold text-gray-900">{{ $overallStats['completed_orders'] }}</p>
-                    </div>
-                </div>
+            <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <p class="text-xs sm:text-sm font-medium text-gray-500 mb-1">Completed</p>
+                <p class="text-lg sm:text-xl font-bold text-green-600">{{ $overallStats['completed_orders'] }}</p>
             </div>
-            <div class="rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm">
-                <div class="flex items-center gap-3">
-                    <div class="rounded-full bg-purple-100 p-2 sm:p-3">
-                        <svg class="h-5 sm:h-6 w-5 sm:w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-xs sm:text-sm font-medium text-gray-500">Revenue</p>
-                        <p class="text-xl sm:text-2xl font-bold text-green-600">GH₵{{ number_format($overallStats['total_revenue'], 2) }}</p>
-                    </div>
-                </div>
+            <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <p class="text-xs sm:text-sm font-medium text-gray-500 mb-1">Revenue</p>
+                <p class="text-lg sm:text-xl font-bold text-green-600">GH₵{{ number_format($overallStats['total_revenue'], 2) }}</p>
             </div>
-            <div class="rounded-xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm">
-                <div class="flex items-center gap-3">
-                    <div class="rounded-full bg-amber-100 p-2 sm:p-3">
-                        <svg class="h-5 sm:h-6 w-5 sm:w-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-xs sm:text-sm font-medium text-gray-500">Customers</p>
-                        <p class="text-xl sm:text-2xl font-bold text-gray-900">{{ $overallStats['total_customers'] }}</p>
-                    </div>
-                </div>
+            <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <p class="text-xs sm:text-sm font-medium text-gray-500 mb-1">Expenses</p>
+                <p class="text-lg sm:text-xl font-bold text-red-600">GH₵{{ number_format($overallStats['total_expenses'], 2) }}</p>
+            </div>
+            <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <p class="text-xs sm:text-sm font-medium text-gray-500 mb-1">Net Total</p>
+                <p class="text-lg sm:text-xl font-bold text-indigo-600">GH₵{{ number_format($overallStats['net_total'], 2) }}</p>
+            </div>
+            <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                <p class="text-xs sm:text-sm font-medium text-gray-500 mb-1">Customers</p>
+                <p class="text-lg sm:text-xl font-bold text-gray-900">{{ $overallStats['total_customers'] }}</p>
             </div>
         </div>
 
@@ -110,11 +82,15 @@
                         </div>
                         <div class="flex items-center justify-between">
                             <span class="text-sm text-gray-600">Revenue</span>
-                            <span class="text-sm font-semibold text-gray-900">GH₵{{ number_format($stat['total_revenue'], 2) }}</span>
+                            <span class="text-sm font-semibold text-green-600">GH₵{{ number_format($stat['total_revenue'], 2) }}</span>
                         </div>
                         <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-600">Paid</span>
-                            <span class="text-sm font-semibold text-green-600">GH₵{{ number_format($stat['total_paid'], 2) }}</span>
+                            <span class="text-sm text-gray-600">Expenses</span>
+                            <span class="text-sm font-semibold text-red-600">GH₵{{ number_format($stat['total_expenses'], 2) }}</span>
+                        </div>
+                        <div class="flex items-center justify-between border-t border-gray-100 pt-2">
+                            <span class="text-sm font-medium text-gray-700">Net Total</span>
+                            <span class="text-sm font-bold text-indigo-600">GH₵{{ number_format($stat['net_total'], 2) }}</span>
                         </div>
                     </div>
                 </a>

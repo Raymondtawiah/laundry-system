@@ -49,7 +49,7 @@
         <!-- Items Grid -->
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             @forelse($items as $item)
-                <div class="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md transition-all">
+                <div class="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md transition-all {{ !$item->is_active ? 'opacity-60 grayscale' : '' }}">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
                             <h3 class="font-semibold text-gray-900">{{ $item->name }}</h3>
@@ -77,7 +77,7 @@
                         @if($item->is_active)
                             <span class="inline-flex rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">Active</span>
                         @else
-                            <span class="inline-flex rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600">Inactive</span>
+                            <span class="inline-flex rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-700">Inactive</span>
                         @endif
                     </div>
                     @if($item->description)

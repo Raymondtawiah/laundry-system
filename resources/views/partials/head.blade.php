@@ -73,83 +73,49 @@ if ('serviceWorker' in navigator) {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Detect if running as installed PWA
+    var deferredPrompt = null;
+
     if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
         localStorage.setItem('pwa-installed', 'true');
     }
 
-    // Permanently hide if app is already installed
     if (localStorage.getItem('pwa-installed') === 'true') {
         return;
     }
 
-    // Check if user previously dismissed the install prompt (don't show again for 7 days)
-    var dismissedTime = localStorage.getItem('pwa-install-dismissed');
-    if (dismissedTime) {
-        var sevenDays = 7 * 24 * 60 * 60 * 1000;
-        if (Date.now() - parseInt(dismissedTime) < sevenDays) {
-            return;
-        }
+    function showInstallAlert() {
+        var alertBox = document.createElement('div');
+        alertBox.id = 'pwa-install-alert';
+        alertBox.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;color:#18181b;padding:24px;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.2);z-index:9999;font-family:system-ui,sans-serif;max-width:320px;width:90%;text-align:center;';
+        alertBox.innerHTML = '<h3 style="margin:0 0 8px;font-size:18px;font-weight:600;">Install App</h3><p style="margin:0 0 20px;color:#52525b;font-size:14px;">Install Malsnuel Enterprise for a better experience</p><div style="display:flex;gap:12px;"><button id="pwa-cancel-btn" style="flex:1;padding:10px 16px;border:1px solid #d4d4d8;border-radius:6px;background:transparent;color:#52525b;font-size:14px;cursor:pointer;">Cancel</button><button id="pwa-confirm-btn" style="flex:1;padding:10px 16px;border:none;border-radius:6px;background:#3b82f6;color:white;font-size:14px;font-weight:500;cursor:pointer;">Install</button></div>';
+        document.body.appendChild(alertBox);
+
+        document.getElementById('pwa-confirm-btn').addEventListener('click', function() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(function(choiceResult) {
+                    if (choiceResult.outcome === 'accepted') {
+                        localStorage.setItem('pwa-installed', 'true');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+            alertBox.remove();
+        });
+
+        document.getElementById('pwa-cancel-btn').addEventListener('click', function() {
+            localStorage.setItem('pwa-install-dismissed', 'true');
+            alertBox.remove();
+        });
     }
 
-    var deferredPrompt = null;
-
-    // Detect browser for install instructions
-    function getInstallInstructions() {
-        var ua = navigator.userAgent;
-        if (/iPhone|iPad|iPod/.test(ua)) {
-            return 'Tap the Share button, then "Add to Home Screen"';
-        }
-        if (/Android/.test(ua)) {
-            return 'Tap the menu (three dots), then "Install App" or "Add to Home Screen"';
-        }
-        if (/Chrome/.test(ua) && !/Edg/.test(ua)) {
-            return 'Click the install icon in the address bar, or go to menu (three dots) > "Install Malsnuel Enterprise"';
-        }
-        if (/Edg/.test(ua)) {
-            return 'Click the install icon in the address bar, or go to menu (three dots) > "Apps" > "Install this site as an app"';
-        }
-        if (/Firefox/.test(ua)) {
-            return 'Click the install icon in the address bar, or go to menu > "Install"';
-        }
-        return 'Open the browser menu and select "Install App" or "Add to Home Screen"';
-    }
-
-    // Create the install banner - always visible by default
-    var installBanner = document.createElement('div');
-    installBanner.id = 'pwa-install-banner';
-    installBanner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#18181b;color:white;padding:16px;display:flex;align-items:center;justify-content:space-between;z-index:9999;box-shadow:0 -2px 10px rgba(0,0,0,0.1);font-family:system-ui,sans-serif;gap:12px;flex-wrap:wrap;';
-    installBanner.innerHTML = '<span style="font-size:14px;flex:1;min-width:200px;">Install Malsnuel Enterprise for a better experience</span><div style="display:flex;gap:8px;flex-shrink:0;"><button id="pwa-install-btn" style="background:#3b82f6;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:500;">Install</button><button id="pwa-dismiss-btn" style="background:transparent;color:#a1a1aa;border:1px solid #3f3f46;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:14px;">Not now</button></div>';
-    document.body.appendChild(installBanner);
-
-    // Listen for native install prompt availability
     window.addEventListener('beforeinstallprompt', function(e) {
         e.preventDefault();
         deferredPrompt = e;
-    });
-
-    document.getElementById('pwa-install-btn').addEventListener('click', function() {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then(function(choiceResult) {
-                if (choiceResult.outcome === 'accepted') {
-                    installBanner.style.display = 'none';
-                    localStorage.setItem('pwa-installed', 'true');
-                }
-                deferredPrompt = null;
-            });
-        } else {
-            alert(getInstallInstructions());
-        }
-    });
-
-    document.getElementById('pwa-dismiss-btn').addEventListener('click', function() {
-        installBanner.style.display = 'none';
-        localStorage.setItem('pwa-install-dismissed', Date.now().toString());
+        showInstallAlert();
     });
 
     window.addEventListener('appinstalled', function() {
-        installBanner.style.display = 'none';
         localStorage.setItem('pwa-installed', 'true');
         deferredPrompt = null;
     });
