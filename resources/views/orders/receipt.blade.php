@@ -18,7 +18,7 @@
         }
         
         body {
-            background-color: #f3f4f6;
+            background-color: #e8e8e8;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -27,19 +27,18 @@
         }
         
         .receipt-container {
-            background: white;
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            background: #fafafa;
+            border-radius: 0;
+            box-shadow: 0 0 0 1px #000;
             max-width: 400px;
             width: 100%;
             overflow: hidden;
-            border: 2px solid #000;
         }
         
         .receipt-header {
-            background: #000;
+            background: #1a1a1a;
             color: white;
-            padding: 1.5rem;
+            padding: 1rem;
             text-align: center;
         }
         
@@ -48,14 +47,14 @@
         }
         
         .receipt-footer {
-            background: #f9fafb;
+            background: #fafafa;
             padding: 1rem;
             text-align: center;
-            border-top: 1px solid #000;
+            border-top: 1px solid #ccc;
         }
         
         .divider {
-            height: 2px;
+            height: 1px;
             background: #000;
             margin: 1rem 0;
         }
@@ -64,7 +63,7 @@
             display: flex;
             justify-content: space-between;
             padding: 0.5rem 0;
-            border-bottom: 1px dashed #000;
+            border-bottom: 1px dashed #ccc;
         }
         
         .item-row:last-child {
@@ -73,17 +72,17 @@
         
         .total-section {
             background: #f5f5f5;
-            border-radius: 0.5rem;
+            border-radius: 0;
             padding: 1rem;
             margin-top: 1rem;
-            border: 1px solid #000;
+            border: 1px solid #ccc;
         }
         
         .print-btn {
-            background: #000;
+            background: #1a1a1a;
             color: white;
             padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
+            border-radius: 0;
             font-weight: 600;
             display: inline-flex;
             align-items: center;

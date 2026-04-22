@@ -1,0 +1,38 @@
+<?php
+
+namespace App\Mail;
+
+use App\Models\Order;
+use Illuminate\Bus\Queueable;
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Queue\SerializesModels;
+
+class OrderReceiptMail extends Mailable
+{
+    use Queueable, SerializesModels;
+
+    public function __construct(
+        public Order $order
+    ) {}
+
+    public function envelope(): Envelope
+    {
+        return new Envelope(
+            subject: 'Your Laundry Receipt - Order #'.str_pad($this->order->id, 3, '0', STR_PAD_LEFT),
+        );
+    }
+
+    public function content(): Content
+    {
+        return new Content(
+            view: 'emails.order-receipt',
+        );
+    }
+
+    public function attachments(): array
+    {
+        return [];
+    }
+}

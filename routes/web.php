@@ -66,6 +66,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('orders/{order}/receipt/pdf', [OrderController::class, 'downloadPdf'])->name('orders.receipt.pdf');
     Route::get('orders/{order}/receipt/whatsapp', [OrderController::class, 'generateReceiptForWhatsApp'])->name('orders.receipt.whatsapp');
     Route::get('orders/{order}/receipt/sms', [OrderController::class, 'sendReceiptSms'])->name('orders.receipt.sms');
+    Route::post('orders/{order}/receipt/email', [OrderController::class, 'sendReceiptEmail'])->name('orders.receipt.email');
     Route::get('orders/{order}/details', [OrderController::class, 'getOrderDetails'])->name('orders.details');
     Route::get('orders/{order}/whatsapp', [OrderController::class, 'getWhatsAppUrl'])->name('orders.whatsapp');
     Route::delete('orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
