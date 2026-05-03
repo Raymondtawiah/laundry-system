@@ -10,28 +10,28 @@
 <meta name="theme-color" content="#ffffff">
 
 <!-- iOS App Icons - Using logo.jpg -->
-<link rel="apple-touch-icon" sizes="180x180" href="/logo.jpg?v=3">
-<link rel="apple-touch-icon" sizes="152x152" href="/logo.jpg?v=3">
-<link rel="apple-touch-icon" sizes="120x120" href="/logo.jpg?v=3">
-<link rel="apple-touch-icon" sizes="76x76" href="/logo.jpg?v=3">
+<link rel="apple-touch-icon" sizes="180x180" href="/logo.jpg">
+<link rel="apple-touch-icon" sizes="152x152" href="/logo.jpg">
+<link rel="apple-touch-icon" sizes="120x120" href="/logo.jpg">
+<link rel="apple-touch-icon" sizes="76x76" href="/logo.jpg">
 
 <!-- iOS App Startup Screens -->
-<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" href="/logo.jpg?v=3">
-<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" href="/logo.jpg?v=3">
-<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" href="/logo.jpg?v=3">
-<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)" href="/logo.jpg?v=3">
-<link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" href="/logo.jpg?v=3">
-<link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)" href="/logo.jpg?v=3">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" href="/logo.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" href="/logo.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" href="/logo.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)" href="/logo.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" href="/logo.jpg">
+<link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)" href="/logo.jpg">
 
 <title>
     {{ filled($title ?? null) ? $title.' - '.config('app.name', 'Malsnuel Enterprise') : config('app.name', 'Malsnuel Enterprise') }}
 </title>
 
 <!-- Favicon - Using logo.jpg -->
-<link rel="icon" type="image/jpeg" href="/logo.jpg?v=3">
-<link rel="shortcut icon" type="image/jpeg" href="/logo.jpg?v=3">
-<link rel="apple-touch-icon" href="/logo.jpg?v=3">
-<link rel="manifest" href="/manifest.json?v=2">
+<link rel="icon" type="image/jpeg" href="/logo.jpg">
+<link rel="shortcut icon" type="image/jpeg" href="/logo.jpg">
+<link rel="apple-touch-icon" href="/logo.jpg">
+<link rel="manifest" href="/manifest.json">
 
 <link rel="preconnect" href="https://fonts.bunny.net">
 <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
@@ -75,8 +75,11 @@ if ('serviceWorker' in navigator) {
 document.addEventListener('DOMContentLoaded', function() {
     var deferredPrompt = null;
 
+    console.log('PWA enabled - checking install status...');
+
     if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
         localStorage.setItem('pwa-installed', 'true');
+        console.log('PWA is running in standalone mode');
     }
 
     if (localStorage.getItem('pwa-installed') === 'true') {
@@ -112,12 +115,16 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('beforeinstallprompt', function(e) {
         e.preventDefault();
         deferredPrompt = e;
-        showInstallAlert();
+        console.log('PWA install prompt available - user can install this app');
+        if (localStorage.getItem('pwa-install-dismissed') !== 'true') {
+            showInstallAlert();
+        }
     });
 
     window.addEventListener('appinstalled', function() {
         localStorage.setItem('pwa-installed', 'true');
         deferredPrompt = null;
+        console.log('PWA installed successfully');
     });
 });
 </script>
