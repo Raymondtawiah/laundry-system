@@ -14,6 +14,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Create default developer account if it doesn't exist
+        $this->createDeveloperAccount();
+
+        // Create Flow Sanitary items
+        $this->createFlowSanitaryItems();
+
         // Check if items already exist
         if (Item::count() > 0) {
             return; // Don't seed items if they already exist
@@ -132,5 +138,60 @@ class DatabaseSeeder extends Seeder
                 'is_active' => true,
             ]);
         }
+    }
+
+    /**
+     * Create default developer account with admin privileges
+     */
+    private function createDeveloperAccount(): void
+    {
+        // Check if developer account already exists
+        if (User::where('email', 'lundryraymond@12345')->exists()) {
+            return;
+        }
+
+        // Create developer account
+        User::create([
+            'name' => 'Developer Admin',
+            'email' => 'lundryraymond@12345',
+            'password' => bcrypt('ghanaisfreeforever'),
+            'role' => 'admin',
+            'is_approved' => true,
+            'is_verified' => true,
+            'email_verified_at' => now(),
+        ]);
+    }
+
+    /**
+     * Create Flow Sanitary items F-001 to F-044
+     */
+    private function createFlowSanitaryItems(): void
+    {
+        // Check if Flow Sanitary items already exist
+        if (\App\Models\FlowSanitary::count() > 0) {
+            return;
+        }
+
+        // Get laundry ID from first user
+        $laundryId = \App\Models\User::first()?->laundry_id;
+        if (!$laundryId) {
+            return;
+        }
+
+        // Generate items F-001 to F-044
+        $items = [];
+        for ($i = 1; $i <= 44; $i++) {
+            $items[] = [
+                'item_code' => 'F-' . str_pad($i, 3, '0', STR_PAD_LEFT),
+                'item_name' => 'Flow Sanitary Item ' . $i,
+                'price' => 10.00 + ($i * 0.50), // Varying prices
+                'quantity' => rand(10, 100), // Random initial quantity
+                'laundry_id' => $laundryId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        \App\Models\FlowSanitary::insert($items);
     }
 }

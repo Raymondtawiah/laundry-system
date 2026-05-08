@@ -4,6 +4,8 @@ use App\Http\Controllers\AuthenticatedSessionController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\FlowSanitaryController;
+use App\Http\Controllers\FlowSanitaryReportController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\RegisterController;
@@ -80,6 +82,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('expenses', [ExpenseController::class, 'store'])->name('expenses.store');
     Route::put('expenses/{expense}', [ExpenseController::class, 'update'])->name('expenses.update');
     Route::delete('expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
+
+    // Flow Sanitary Ware - admin only
+    Route::get('flow-sanitary', [FlowSanitaryController::class, 'index'])->name('flow-sanitary.index');
+    Route::get('flow-sanitary/create', [FlowSanitaryController::class, 'create'])->name('flow-sanitary.create');
+    Route::post('flow-sanitary', [FlowSanitaryController::class, 'store'])->name('flow-sanitary.store');
+    Route::get('flow-sanitary/{flowSanitary}/edit', [FlowSanitaryController::class, 'edit'])->name('flow-sanitary.edit');
+    Route::put('flow-sanitary/{flowSanitary}', [FlowSanitaryController::class, 'update'])->name('flow-sanitary.update');
+    Route::post('flow-sanitary/{flowSanitary}/sell', [FlowSanitaryController::class, 'sell'])->name('flow-sanitary.sell');
+    Route::post('flow-sanitary/{flowSanitary}/add-stock', [FlowSanitaryController::class, 'addStock'])->name('flow-sanitary.add-stock');
+
+    // Flow Sanitary Reports - admin only
+    Route::get('flow-sanitary/reports', [FlowSanitaryReportController::class, 'index'])->name('flow-sanitary.reports.index');
 });
 
 require __DIR__.'/settings.php';
