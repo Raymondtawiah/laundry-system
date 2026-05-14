@@ -77,4 +77,4 @@
             </form>
         </div>
     </div>
-</x-app-layout>
+</x-layouts::app>

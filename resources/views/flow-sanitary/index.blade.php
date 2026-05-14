@@ -124,9 +124,11 @@
                 </svg>
                                 View Reports
                             </a>
-                        </div>
-                    </div>
-                </x-app-layout>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-layouts::app>
 
                 <!-- Sell Modal -->
                 <div id="sellModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">

@@ -224,7 +224,7 @@ class OrderController extends Controller
         }
 
         try {
-            $whatsappUrl = $this->receiptService->generateWhatsAppUrl($order);
+            $whatsappUrl = $this->receiptService->generateWhatsAppUrlWithPdf($order);
 
             if (empty($whatsappUrl)) {
                 return response()->json(['success' => false, 'message' => 'Customer phone number not found'], 400);
