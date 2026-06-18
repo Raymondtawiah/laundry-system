@@ -15,6 +15,7 @@ class FlowSanitaryController extends Controller
             if (Auth::user()->role !== 'admin') {
                 abort(403, 'Access denied. Admin only.');
             }
+
             return $next($request);
         });
     }
@@ -25,9 +26,9 @@ class FlowSanitaryController extends Controller
         $query = FlowSanitary::where('laundry_id', Auth::user()->laundry_id);
 
         if ($search) {
-            $query->where(function($q) use ($search) {
-                $q->whereRaw('LOWER(item_name) LIKE ?', ['%' . strtolower($search) . '%'])
-                  ->orWhereRaw('LOWER(item_code) LIKE ?', ['%' . strtolower($search) . '%']);
+            $query->where(function ($q) use ($search) {
+                $q->whereRaw('LOWER(item_name) LIKE ?', ['%'.strtolower($search).'%'])
+                    ->orWhereRaw('LOWER(item_code) LIKE ?', ['%'.strtolower($search).'%']);
             });
         }
 
@@ -44,7 +45,7 @@ class FlowSanitaryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'item_code' => 'required|string|max:50|unique:flow_sanitaries,item_code,NULL,id,laundry_id,' . Auth::user()->laundry_id,
+            'item_code' => 'required|string|max:50|unique:flow_sanitaries,item_code,NULL,id,laundry_id,'.Auth::user()->laundry_id,
             'item_name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
             'quantity' => 'required|integer|min:0',
@@ -60,7 +61,7 @@ class FlowSanitaryController extends Controller
 
         return redirect()->route('flow-sanitary.index')->with('toast', [
             'type' => 'success',
-            'message' => 'Item created successfully!'
+            'message' => 'Item created successfully!',
         ]);
     }
 
@@ -91,7 +92,7 @@ class FlowSanitaryController extends Controller
 
         return redirect()->route('flow-sanitary.index')->with('toast', [
             'type' => 'success',
-            'message' => 'Item updated successfully!'
+            'message' => 'Item updated successfully!',
         ]);
     }
 
@@ -102,7 +103,7 @@ class FlowSanitaryController extends Controller
         }
 
         $request->validate([
-            'quantity' => 'required|integer|min:1|max:' . $flowSanitary->quantity,
+            'quantity' => 'required|integer|min:1|max:'.$flowSanitary->quantity,
         ]);
 
         $totalAmount = $request->quantity * $flowSanitary->price;
@@ -123,7 +124,7 @@ class FlowSanitaryController extends Controller
 
         return redirect()->route('flow-sanitary.index')->with('toast', [
             'type' => 'success',
-            'message' => "Sold {$request->quantity} units of {$flowSanitary->item_name} for GH₵" . number_format($totalAmount, 2)
+            'message' => "Sold {$request->quantity} units of {$flowSanitary->item_name} for GH₵".number_format($totalAmount, 2),
         ]);
     }
 
@@ -155,7 +156,7 @@ class FlowSanitaryController extends Controller
 
         return redirect()->route('flow-sanitary.index')->with('toast', [
             'type' => 'success',
-            'message' => "Added {$request->quantity} units to {$flowSanitary->item_name}"
+            'message' => "Added {$request->quantity} units to {$flowSanitary->item_name}",
         ]);
     }
 }

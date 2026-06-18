@@ -17,7 +17,7 @@ class ItemController extends Controller
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Only administrators can add items.');
         }
-        
+
         return view('items.create');
     }
 
@@ -30,7 +30,7 @@ class ItemController extends Controller
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Only administrators can add items.');
         }
-        
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
@@ -63,28 +63,28 @@ class ItemController extends Controller
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Only administrators can view items.');
         }
-        
+
         $query = Item::where('laundry_id', Auth::user()->laundry_id);
-        
+
         // Search filter
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where('name', 'like', '%'.$request->search.'%');
         }
-        
+
         // Category filter
         if ($request->filled('category')) {
             $query->where('category', $request->category);
         }
-        
+
         $items = $query->orderBy('name')->paginate(15);
-        
+
         // Get unique categories for the dropdown
         $categories = Item::where('laundry_id', Auth::user()->laundry_id)
-                    ->distinct()
-                    ->pluck('category')
-                    ->sort()
-                    ->toArray();
-        
+            ->distinct()
+            ->pluck('category')
+            ->sort()
+            ->toArray();
+
         return view('items.index', compact('items', 'categories'));
     }
 
@@ -97,14 +97,14 @@ class ItemController extends Controller
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Only administrators can delete items.');
         }
-        
+
         // Make sure the item belongs to the same laundry
         if ($item->laundry_id !== Auth::user()->laundry_id) {
             abort(403, 'You cannot delete this item.');
         }
-        
+
         $item->delete();
-        
+
         return redirect()->route('items.index')->with('success', 'Item deleted successfully!');
     }
 
@@ -117,12 +117,12 @@ class ItemController extends Controller
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Only administrators can edit items.');
         }
-        
+
         // Make sure the item belongs to the same laundry
         if ($item->laundry_id !== Auth::user()->laundry_id) {
             abort(403, 'You cannot edit this item.');
         }
-        
+
         return view('items.edit', compact('item'));
     }
 
@@ -135,12 +135,12 @@ class ItemController extends Controller
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Only administrators can update items.');
         }
-        
+
         // Make sure the item belongs to the same laundry
         if ($item->laundry_id !== Auth::user()->laundry_id) {
             abort(403, 'You cannot update this item.');
         }
-        
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],

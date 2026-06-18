@@ -7,7 +7,9 @@ use Livewire\Component;
 class FlashMessage extends Component
 {
     public $message = '';
+
     public $type = 'success';
+
     public $show = false;
 
     protected $listeners = ['flashMessage' => 'showMessage'];

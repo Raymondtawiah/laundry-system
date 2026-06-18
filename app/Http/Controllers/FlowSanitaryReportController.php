@@ -14,6 +14,7 @@ class FlowSanitaryReportController extends Controller
             if (Auth::user()->role !== 'admin') {
                 abort(403, 'Access denied. Admin only.');
             }
+
             return $next($request);
         });
     }

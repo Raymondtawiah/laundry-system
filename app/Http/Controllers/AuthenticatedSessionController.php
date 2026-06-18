@@ -3,11 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Auth\LoginRequest;
+use App\Services\DefaultAdminService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AuthenticatedSessionController extends Controller
 {
+    public function __construct(
+        private DefaultAdminService $adminService
+    ) {}
+
     /**
      * Display the login view.
      */
@@ -22,12 +27,9 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request)
     {
         $request->authenticate();
-        
-        // Set user as unverified on every login
-        // This ensures they need to verify each time they log in
-        // Skip for developer account
+
         $user = Auth::user();
-        if ($user && $user->email !== 'lundryraymond@12345') {
+        if ($user && ! $this->adminService->isDefaultAdmin($user)) {
             $user->is_verified = false;
             $user->verification_code = null;
             $user->verification_code_expires_at = null;
@@ -44,12 +46,9 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request)
     {
-        $user = Auth::user();
-        
-        // Set user as unverified when logging out
-        // This will require verification on next login
-        // Skip for developer account
-        if ($user && $user->email !== 'lundryraymond@12345') {
+        $user = $request->user();
+
+        if ($user && ! $this->adminService->isDefaultAdmin($user)) {
             $user->is_verified = false;
             $user->verification_code = null;
             $user->verification_code_expires_at = null;

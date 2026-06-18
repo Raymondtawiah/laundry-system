@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
@@ -47,30 +47,40 @@ class Order extends Model
      * Status constants
      */
     const STATUS_PENDING = 'pending';
+
     const STATUS_IN_PROGRESS = 'in_progress';
+
     const STATUS_READY = 'ready';
+
     const STATUS_COMPLETED = 'completed';
+
     const STATUS_CANCELLED = 'cancelled';
 
     /**
      * Delivery type constants
      */
     const DELIVERY_PICKUP = 'pickup';
+
     const DELIVERY_DOORSTEP = 'doorstep';
 
     /**
      * Service type constants
      */
     const SERVICE_WASHING = 'washing';
+
     const SERVICE_IRONING = 'ironing';
+
     const SERVICE_DRYING = 'drying';
+
     const SERVICE_DEEP_CLEANING = 'deep_cleaning';
 
     /**
      * Payment status constants
      */
     const PAYMENT_UNPAID = 'unpaid';
+
     const PAYMENT_PARTIAL = 'partial';
+
     const PAYMENT_PAID = 'paid';
 
     /**
@@ -103,8 +113,8 @@ class Order extends Model
     public function items()
     {
         return $this->belongsToMany(Item::class, 'order_items')
-                    ->withPivot('quantity', 'unit_price', 'subtotal')
-                    ->withTimestamps();
+            ->withPivot('quantity', 'unit_price', 'subtotal')
+            ->withTimestamps();
     }
 
     /**
@@ -113,7 +123,7 @@ class Order extends Model
     public function updateBalance()
     {
         $this->balance = $this->total_amount - $this->amount_paid;
-        
+
         if ($this->amount_paid >= $this->total_amount) {
             $this->payment_status = self::PAYMENT_PAID;
         } elseif ($this->amount_paid > 0) {
@@ -121,7 +131,7 @@ class Order extends Model
         } else {
             $this->payment_status = self::PAYMENT_UNPAID;
         }
-        
+
         $this->save();
     }
 }

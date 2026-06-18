@@ -7,8 +7,8 @@ use App\Concerns\ProfileValidationRules;
 use App\Models\Laundry;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
-use Laravel\Fortify\Contracts\CreatesNewUsers;
 use Illuminate\Support\Str;
+use Laravel\Fortify\Contracts\CreatesNewUsers;
 
 class CreateNewUser implements CreatesNewUsers
 {
@@ -28,7 +28,7 @@ class CreateNewUser implements CreatesNewUsers
 
         // Check if any admin already exists - only the first admin can register
         $adminExists = User::where('role', 'admin')->exists();
-        
+
         if ($adminExists) {
             abort(403, 'Registration is closed. Please contact the admin to create your account.');
         }

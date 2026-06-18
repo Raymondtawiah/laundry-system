@@ -20,7 +20,7 @@ class SettingsController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.$user->id],
         ]);
 
         $user->update($validated);
@@ -42,7 +42,7 @@ class SettingsController extends Controller
 
         $user = Auth::user();
 
-        if (!Hash::check($request->current_password, $user->password)) {
+        if (! Hash::check($request->current_password, $user->password)) {
             throw ValidationException::withMessages([
                 'current_password' => ['The current password is incorrect.'],
             ]);
@@ -63,6 +63,7 @@ class SettingsController extends Controller
     public function twoFactor()
     {
         $user = Auth::user();
+
         return view('settings.two-factor', compact('user'));
     }
 
@@ -70,7 +71,7 @@ class SettingsController extends Controller
     {
         $user = Auth::user();
         $user->createTwoFactorSecret();
-        
+
         return redirect()->route('two-factor.show')->with('success', 'Two-factor authentication enabled. Please confirm with your code.');
     }
 
@@ -78,7 +79,7 @@ class SettingsController extends Controller
     {
         $user = Auth::user();
         $user->disableTwoFactorAuthentication();
-        
+
         return redirect()->route('two-factor.show')->with('success', 'Two-factor authentication disabled.');
     }
 }

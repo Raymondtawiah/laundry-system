@@ -90,7 +90,7 @@ class User extends Authenticatable
         $this->verification_code = $code;
         $this->verification_code_expires_at = now()->addMinutes(10);
         $this->save();
-        
+
         return $code;
     }
 
@@ -120,7 +120,7 @@ class User extends Authenticatable
      */
     public function needsVerification(): bool
     {
-        return !$this->is_verified;
+        return ! $this->is_verified;
     }
 
     /**

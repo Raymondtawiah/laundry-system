@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Laundry;
 use App\Models\User;
+use App\Services\DefaultAdminService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,24 +14,19 @@ use Illuminate\Validation\Rules\Password;
 
 class RegisterController extends Controller
 {
-    /**
-     * Show the registration form for admin.
-     */
-    public function create()
+    public function create(DefaultAdminService $adminService)
     {
-        // Check if any admin already exists - only the first admin can register
-        $registrationClosed = User::where('role', 'admin')->exists();
+        $credentials = $adminService->getCredentials();
+        $registrationClosed = User::where('email', $credentials['email'])->exists();
 
         return view('pages.auth.register', compact('registrationClosed'));
     }
 
-    /**
-     * Handle an incoming registration request.
-     */
-    public function store(Request $request)
+    public function store(Request $request, DefaultAdminService $adminService)
     {
-        // Check if any admin already exists - only the first admin can register
-        if (User::where('role', 'admin')->exists()) {
+        $credentials = $adminService->getCredentials();
+
+        if (User::where('email', $credentials['email'])->exists()) {
             abort(403, 'Registration is closed. Please contact the admin to create your account.');
         }
 

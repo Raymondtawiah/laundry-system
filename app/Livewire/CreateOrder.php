@@ -2,42 +2,48 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
 use App\Models\Customer;
 use App\Models\Item;
+use Livewire\Component;
 
 class CreateOrder extends Component
 {
     public $customers = [];
+
     public $items = [];
+
     public $orderItems = [];
+
     public $totalAmount = 0;
+
     public $notes = '';
+
     public $service_types = [];
 
     public function mount()
     {
         // Get customers with their pending balances and sort by balance (descending) so those with pending payments appear first
         $customersQuery = Customer::where('laundry_id', auth()->user()->laundry_id)
-            ->with(['orders' => function($q) {
+            ->with(['orders' => function ($q) {
                 $q->whereIn('payment_status', ['unpaid', 'partial'])
-                  ->where('status', '!=', 'cancelled');
+                    ->where('status', '!=', 'cancelled');
             }])
-            ->when(auth()->user()->role === 'staff' && auth()->user()->branch, function($query) {
+            ->when(auth()->user()->role === 'staff' && auth()->user()->branch, function ($query) {
                 $query->where('branch', auth()->user()->branch);
             });
-        
+
         // Get customers and sort by pending balance
-        $customers = $customersQuery->get()->map(function($customer) {
+        $customers = $customersQuery->get()->map(function ($customer) {
             $pendingBalance = $customer->orders->sum('balance');
             $customer->pending_balance = $pendingBalance;
+
             return $customer;
         })->sortByDesc('pending_balance')->values();
-        
+
         $this->customers = $customers->toArray();
-        
+
         $this->items = $this->getItemsByServiceTypes();
-        
+
         // Add one empty item row by default
         $this->addItem();
     }
@@ -46,9 +52,9 @@ class CreateOrder extends Component
     {
         $query = Item::where('laundry_id', auth()->user()->laundry_id)
             ->where('is_active', true);
-            
+
         // Filter items by selected service types/categories
-        if (!empty($this->service_types)) {
+        if (! empty($this->service_types)) {
             $categoryMap = [
                 'executive_wear' => 'Executive Wear',
                 'native_wear' => 'Native Wear',
@@ -61,19 +67,19 @@ class CreateOrder extends Component
                 'deep_cleaning' => 'Deep Cleaning',
                 'sofa_cleaning' => 'Sofa Cleaning',
             ];
-            
+
             $categories = [];
             foreach ($this->service_types as $serviceType) {
                 if (isset($categoryMap[$serviceType])) {
                     $categories[] = $categoryMap[$serviceType];
                 }
             }
-            
-            if (!empty($categories)) {
+
+            if (! empty($categories)) {
                 $query->whereIn('category', $categories);
             }
         }
-        
+
         return $query->orderBy('name')->get()->toArray();
     }
 
@@ -81,7 +87,7 @@ class CreateOrder extends Component
     {
         // Reset items when service types change
         $this->items = $this->getItemsByServiceTypes();
-        
+
         // Reset order items
         $this->orderItems = [];
         $this->addItem();
@@ -89,7 +95,7 @@ class CreateOrder extends Component
 
     public function addServiceType($value)
     {
-        if ($value && !in_array($value, $this->service_types)) {
+        if ($value && ! in_array($value, $this->service_types)) {
             $this->service_types[] = $value;
             $this->items = $this->getItemsByServiceTypes();
             $this->orderItems = [];
@@ -99,7 +105,7 @@ class CreateOrder extends Component
 
     public function removeServiceType($value)
     {
-        $this->service_types = array_filter($this->service_types, function($item) use ($value) {
+        $this->service_types = array_filter($this->service_types, function ($item) use ($value) {
             return $item !== $value;
         });
         $this->items = $this->getItemsByServiceTypes();
@@ -150,7 +156,7 @@ class CreateOrder extends Component
     {
         $this->totalAmount = 0;
         foreach ($this->orderItems as $item) {
-            if (!empty($item['item_id']) && !empty($item['quantity'])) {
+            if (! empty($item['item_id']) && ! empty($item['quantity'])) {
                 $this->totalAmount += $item['subtotal'];
             }
         }

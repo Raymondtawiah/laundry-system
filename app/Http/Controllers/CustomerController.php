@@ -17,17 +17,17 @@ class CustomerController extends Controller
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Only administrators can view customer details.');
         }
-        
+
         // Make sure the customer belongs to the same laundry
         if ($customer->laundry_id !== Auth::user()->laundry_id) {
             abort(403, 'You cannot view this customer.');
         }
-        
+
         // Load customer's orders with customer relationship
-        $customer->load(['orders' => function($query) {
+        $customer->load(['orders' => function ($query) {
             $query->with('customer')->orderBy('created_at', 'desc');
         }]);
-        
+
         return view('customers.show', compact('customer'));
     }
 
@@ -40,7 +40,7 @@ class CustomerController extends Controller
         if (Auth::user()->role !== 'admin' && Auth::user()->role !== 'staff') {
             abort(403, 'Only administrators and staff can add customers.');
         }
-        
+
         return view('customers.create');
     }
 
@@ -53,7 +53,7 @@ class CustomerController extends Controller
         if (Auth::user()->role !== 'admin' && Auth::user()->role !== 'staff') {
             abort(403, 'Only administrators and staff can add customers.');
         }
-        
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'string', 'email', 'max:255', 'unique:customers'],
@@ -88,31 +88,31 @@ class CustomerController extends Controller
         if (Auth::user()->role !== 'admin' && Auth::user()->role !== 'staff') {
             abort(403, 'Only administrators and staff can view customers.');
         }
-        
+
         $branch = $request->get('branch', '');
-        
+
         $customers = Customer::withCount('orders')
-                    ->with(['orders' => function($query) {
-                        $query->select('id', 'customer_id', 'total_amount');
-                    }])
-                    ->where('laundry_id', Auth::user()->laundry_id)
-                    ->when(Auth::user()->role === 'staff' && Auth::user()->branch, function($query) {
-                        $query->where('branch', Auth::user()->branch);
-                    })
-                    ->when(Auth::user()->role === 'staff' && !Auth::user()->branch, function($query) {
-                        $query->whereNull('id');
-                    })
-                    ->when($branch && Auth::user()->role === 'admin', function($query) use ($branch) {
-                        $query->where('branch', $branch);
-                    })
-                    ->orderBy('name')
-                    ->paginate(15);
-        
+            ->with(['orders' => function ($query) {
+                $query->select('id', 'customer_id', 'total_amount');
+            }])
+            ->where('laundry_id', Auth::user()->laundry_id)
+            ->when(Auth::user()->role === 'staff' && Auth::user()->branch, function ($query) {
+                $query->where('branch', Auth::user()->branch);
+            })
+            ->when(Auth::user()->role === 'staff' && ! Auth::user()->branch, function ($query) {
+                $query->whereNull('id');
+            })
+            ->when($branch && Auth::user()->role === 'admin', function ($query) use ($branch) {
+                $query->where('branch', $branch);
+            })
+            ->orderBy('name')
+            ->paginate(15);
+
         // Calculate total_spent for each customer
         foreach ($customers as $customer) {
             $customer->total_spent = $customer->orders->sum('total_amount');
         }
-        
+
         return view('customers.index', compact('customers', 'branch'));
     }
 
@@ -125,14 +125,14 @@ class CustomerController extends Controller
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Only administrators can delete customers.');
         }
-        
+
         // Make sure the customer belongs to the same laundry
         if ($customer->laundry_id !== Auth::user()->laundry_id) {
             abort(403, 'You cannot delete this customer.');
         }
-        
+
         $customer->delete();
-        
+
         return redirect()->route('customers.index')->with('success', 'Customer deleted successfully!');
     }
 }

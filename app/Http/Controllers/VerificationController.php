@@ -15,14 +15,14 @@ class VerificationController extends Controller
     public function show()
     {
         $user = Auth::user();
-        
+
         // If already verified, redirect to dashboard
         if ($user->is_verified) {
             return redirect()->route('dashboard');
         }
 
         // Generate new code if none exists or expired
-        if (!$user->verification_code || 
+        if (! $user->verification_code ||
             ($user->verification_code_expires_at && now()->greaterThan($user->verification_code_expires_at))) {
             $this->sendVerificationCode($user);
         }
@@ -36,7 +36,7 @@ class VerificationController extends Controller
     public function resend()
     {
         $user = Auth::user();
-        
+
         if ($user->is_verified) {
             return redirect()->route('dashboard');
         }
@@ -70,7 +70,7 @@ class VerificationController extends Controller
     protected function sendVerificationCode(User $user): void
     {
         $code = $user->generateVerificationCode();
-        
+
         $details = [
             'name' => $user->name,
             'code' => $code,
