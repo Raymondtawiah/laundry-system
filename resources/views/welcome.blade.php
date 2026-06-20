@@ -206,8 +206,6 @@
 
                         <h1 class="text-5xl sm:text-7xl lg:text-8xl font-black mb-8 tracking-tight animate-slide-up delay-100 leading-[1.1]">
                             Laundry <span class="text-gradient">Management</span>
-                            <br>
-                            <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200">Redefined</span>
                         </h1>
 
                         <p class="max-w-2xl mx-auto text-lg md:text-xl text-white/70 mb-12 animate-slide-up delay-200 leading-relaxed">
